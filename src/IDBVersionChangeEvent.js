@@ -31,7 +31,9 @@ readonlyProperties.forEach((prop) => {
 });
 
 Object.defineProperty(IDBVersionChangeEvent, Symbol.hasInstance, {
-    value: obj => util.isObj(obj) && 'oldVersion' in obj && typeof obj.defaultPrevented === 'boolean'
+    value: function (obj) {
+        return util.isObj(obj) && 'oldVersion' in obj && typeof obj.defaultPrevented === 'boolean';
+    }
 });
 
 Object.defineProperty(IDBVersionChangeEvent.prototype, 'constructor', {

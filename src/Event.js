@@ -9,7 +9,9 @@ function createEvent (type, debug, evInit) {
 
 // We don't add within polyfill repo as might not always be the desired implementation
 Object.defineProperty(ShimEvent, Symbol.hasInstance, {
-    value: obj => util.isObj(obj) && 'target' in obj && typeof obj.bubbles === 'boolean'
+    value: function (obj) {
+        return util.isObj(obj) && 'target' in obj && typeof obj.bubbles === 'boolean';
+    }
 });
 
 export {createEvent, ShimEvent, ShimCustomEvent, ShimEventTarget};

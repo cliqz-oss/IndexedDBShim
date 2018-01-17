@@ -532,7 +532,9 @@ IDBIndex.prototype.__renameIndex = function (store, oldName, newName, colInfoToP
 };
 
 Object.defineProperty(IDBIndex, Symbol.hasInstance, {
-    value: obj => util.isObj(obj) && typeof obj.openCursor === 'function' && typeof obj.multiEntry === 'boolean'
+    value: function (obj) {
+        return util.isObj(obj) && typeof obj.openCursor === 'function' && typeof obj.multiEntry === 'boolean';
+    }
 });
 
 readonlyProperties.forEach((prop) => {
