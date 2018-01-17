@@ -15,9 +15,8 @@ import CFG from './CFG';
 
 const fs = ({}.toString.call(process) === '[object process]') ? require('fs') : null;
 
-const getOrigin = () => {
-    return (typeof location !== 'object' || !location) ? 'null' : location.origin;
-};
+const getOrigin = () => CFG.origin || ((typeof location !== 'object' || !location) ? 'null' : location.origin);
+
 const hasNullOrigin = () => CFG.checkOrigin !== false && (getOrigin() === 'null');
 
 // Todo: This really should be process and tab-independent so the

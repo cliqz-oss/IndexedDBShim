@@ -137,7 +137,9 @@ const CFG = {};
     // NODE-SPECIFIC WEBSQL CONFIG
     'sqlBusyTimeout', // Defaults to 1000
     'sqlTrace', // Callback not used by default
-    'sqlProfile' // Callback not used by default
+    'sqlProfile', // Callback not used by default
+
+    'origin'
 ].forEach((prop) => {
     let validator;
     if (Array.isArray(prop)) {
