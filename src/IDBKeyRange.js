@@ -107,7 +107,9 @@ readonlyProperties.forEach((prop) => {
 });
 
 Object.defineProperty(IDBKeyRange, Symbol.hasInstance, {
-    value: (obj) => util.isObj(obj) && 'upper' in obj && typeof obj.lowerOpen === 'boolean'
+    value: function (obj) {
+      return util.isObj(obj) && 'upper' in obj && typeof obj.lowerOpen === 'boolean';
+    }
 });
 
 Object.defineProperty(IDBKeyRange, 'prototype', {
