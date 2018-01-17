@@ -182,7 +182,7 @@ function setGlobalVars (idb, initialConfig) {
 
     // Detect browsers with known IndexedDB issues (e.g. Android pre-4.4)
     let poorIndexedDbSupport = false;
-    if (typeof navigator !== 'undefined' && ( // Ignore Node or other environments
+    if (typeof navigator !== 'undefined' && navigator.userAgent && ( // Ignore Node or other environments
         (
             // Bad non-Chrome Android support
             (/Android (?:2|3|4\.[0-3])/).test(navigator.userAgent) &&
@@ -204,7 +204,7 @@ function setGlobalVars (idb, initialConfig) {
             ( // Safari currently requires larger size: (We don't need a larger size for Node as node-websql doesn't use this info)
                 // https://github.com/axemclion/IndexedDBShim/issues/41
                 // https://github.com/axemclion/IndexedDBShim/issues/115
-                typeof navigator !== 'undefined' &&
+                typeof navigator !== 'undefined' && navigator.userAgent &&
                 navigator.userAgent.includes('Safari') &&
                 !navigator.userAgent.includes('Chrome')
             ) ? 25 : 4
