@@ -13,7 +13,7 @@ import CFG from './CFG';
 import SyncPromise from 'sync-promise';
 import path from 'path';
 
-const getOrigin = () => (typeof location !== 'object' || !location) ? 'null' : location.origin;
+const getOrigin = () => CFG.origin || ((typeof location !== 'object' || !location) ? 'null' : location.origin);
 const hasNullOrigin = () => CFG.checkOrigin !== false && (getOrigin() === 'null');
 
 // Todo: This really should be process and tab-independent so the
