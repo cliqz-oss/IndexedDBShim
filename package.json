@@ -1,5 +1,5 @@
 {
-  "name": "indexeddbshim",
+  "name": "@cliqz/indexeddbshim",
   "version": "3.3.1",
   "author": "Parashuram <code@nparashuram.com>",
   "contributors": [
