@@ -51,10 +51,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/axemclion/IndexedDBShim.git"
+    "url": "git://github.com/cliqz-oss/IndexedDBShim.git"
   },
   "bugs": {
-    "url": "https://github.com/axemclion/IndexedDBShim/issues"
+    "url": "https://github.com/cliqz-oss/IndexedDBShim/issues"
   },
   "main": "dist/indexeddbshim-node.js",
   "browser": "dist/indexeddbshim.min.js",
