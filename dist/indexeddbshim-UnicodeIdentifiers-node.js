@@ -885,8 +885,9 @@ const CFG = {};
 // NODE-SPECIFIC WEBSQL CONFIG
 'sqlBusyTimeout', // Defaults to 1000
 'sqlTrace', // Callback not used by default
-'sqlProfile' // Callback not used by default
-].forEach(prop => {
+'sqlProfile', // Callback not used by default
+
+'origin'].forEach(prop => {
     let validator;
     if (Array.isArray(prop)) {
         validator = prop[1];
@@ -1402,7 +1403,9 @@ function createEvent(type, debug, evInit) {
 
 // We don't add within polyfill repo as might not always be the desired implementation
 Object.defineProperty(_eventtargeter.ShimEvent, Symbol.hasInstance, {
-    value: obj => util.isObj(obj) && 'target' in obj && typeof obj.bubbles === 'boolean'
+    value: function (obj) {
+        return util.isObj(obj) && 'target' in obj && typeof obj.bubbles === 'boolean';
+    }
 });
 
 exports.createEvent = createEvent;
@@ -2407,7 +2410,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-const getOrigin = () => typeof location !== 'object' || !location ? 'null' : location.origin; /* globals location, Event */
+const getOrigin = () => _CFG2.default.origin || (typeof location !== 'object' || !location ? 'null' : location.origin); /* globals location, Event */
 
 const hasNullOrigin = () => _CFG2.default.checkOrigin !== false && getOrigin() === 'null';
 
@@ -3655,7 +3658,9 @@ IDBIndex.prototype.__renameIndex = function (store, oldName, newName, colInfoToP
 };
 
 Object.defineProperty(IDBIndex, Symbol.hasInstance, {
-    value: obj => util.isObj(obj) && typeof obj.openCursor === 'function' && typeof obj.multiEntry === 'boolean'
+    value: function (obj) {
+        return util.isObj(obj) && typeof obj.openCursor === 'function' && typeof obj.multiEntry === 'boolean';
+    }
 });
 
 readonlyProperties.forEach(prop => {
@@ -3897,7 +3902,9 @@ readonlyProperties.forEach(prop => {
 });
 
 Object.defineProperty(IDBKeyRange, Symbol.hasInstance, {
-    value: obj => util.isObj(obj) && 'upper' in obj && typeof obj.lowerOpen === 'boolean'
+    value: function (obj) {
+        return util.isObj(obj) && 'upper' in obj && typeof obj.lowerOpen === 'boolean';
+    }
 });
 
 Object.defineProperty(IDBKeyRange, 'prototype', {
@@ -5667,7 +5674,9 @@ readonlyProperties.forEach(prop => {
 });
 
 Object.defineProperty(IDBVersionChangeEvent, Symbol.hasInstance, {
-    value: obj => util.isObj(obj) && 'oldVersion' in obj && typeof obj.defaultPrevented === 'boolean'
+    value: function (obj) {
+        return util.isObj(obj) && 'oldVersion' in obj && typeof obj.defaultPrevented === 'boolean';
+    }
 });
 
 Object.defineProperty(IDBVersionChangeEvent.prototype, 'constructor', {
@@ -6975,7 +6984,7 @@ function setGlobalVars(idb, initialConfig) {
 
     // Detect browsers with known IndexedDB issues (e.g. Android pre-4.4)
     let poorIndexedDbSupport = false;
-    if (typeof navigator !== 'undefined' && ( // Ignore Node or other environments
+    if (typeof navigator !== 'undefined' && navigator.userAgent && ( // Ignore Node or other environments
 
     // Bad non-Chrome Android support
     /Android (?:2|3|4\.[0-3])/.test(navigator.userAgent) && !navigator.userAgent.includes('Chrome') ||
@@ -6991,7 +7000,7 @@ function setGlobalVars(idb, initialConfig) {
         _CFG2.default.DEFAULT_DB_SIZE = ( // Safari currently requires larger size: (We don't need a larger size for Node as node-websql doesn't use this info)
         // https://github.com/axemclion/IndexedDBShim/issues/41
         // https://github.com/axemclion/IndexedDBShim/issues/115
-        typeof navigator !== 'undefined' && navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome') ? 25 : 4) * 1024 * 1024;
+        typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome') ? 25 : 4) * 1024 * 1024;
     }
     if (!_CFG2.default.avoidAutoShim && (!IDB.indexedDB || poorIndexedDbSupport) && _CFG2.default.win.openDatabase !== undefined) {
         IDB.shimIndexedDB.__useShim();

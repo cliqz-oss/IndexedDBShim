@@ -32,6 +32,8 @@ module.exports = function (grunt) {
     const saucekey = process.env.SAUCE_ACCESS_KEY !== undefined ? process.env.SAUCE_ACCESS_KEY : null;
 
     const pkg = require('./package.json');
+    pkg.name = 'indexeddbshim';
+
     // bumpVersion(pkg);
     grunt.initConfig({
         pkg: pkg,

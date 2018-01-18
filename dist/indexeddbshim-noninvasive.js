@@ -1302,8 +1302,9 @@ var CFG = {};
 // NODE-SPECIFIC WEBSQL CONFIG
 'sqlBusyTimeout', // Defaults to 1000
 'sqlTrace', // Callback not used by default
-'sqlProfile' // Callback not used by default
-].forEach(function (prop) {
+'sqlProfile', // Callback not used by default
+
+'origin'].forEach(function (prop) {
     var validator = void 0;
     if (Array.isArray(prop)) {
         validator = prop[1];
@@ -2884,7 +2885,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var getOrigin = function getOrigin() {
-    return (typeof location === 'undefined' ? 'undefined' : _typeof(location)) !== 'object' || !location ? 'null' : location.origin;
+    return _CFG2.default.origin || ((typeof location === 'undefined' ? 'undefined' : _typeof(location)) !== 'object' || !location ? 'null' : location.origin);
 };
 var hasNullOrigin = function hasNullOrigin() {
     return _CFG2.default.checkOrigin !== false && getOrigin() === 'null';
@@ -7566,7 +7567,7 @@ function setGlobalVars(idb, initialConfig) {
 
     // Detect browsers with known IndexedDB issues (e.g. Android pre-4.4)
     var poorIndexedDbSupport = false;
-    if (typeof navigator !== 'undefined' && ( // Ignore Node or other environments
+    if (typeof navigator !== 'undefined' && navigator.userAgent && ( // Ignore Node or other environments
 
     // Bad non-Chrome Android support
     /Android (?:2|3|4\.[0-3])/.test(navigator.userAgent) && !navigator.userAgent.includes('Chrome') ||
@@ -7582,7 +7583,7 @@ function setGlobalVars(idb, initialConfig) {
         _CFG2.default.DEFAULT_DB_SIZE = ( // Safari currently requires larger size: (We don't need a larger size for Node as node-websql doesn't use this info)
         // https://github.com/axemclion/IndexedDBShim/issues/41
         // https://github.com/axemclion/IndexedDBShim/issues/115
-        typeof navigator !== 'undefined' && navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome') ? 25 : 4) * 1024 * 1024;
+        typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome') ? 25 : 4) * 1024 * 1024;
     }
     if (!_CFG2.default.avoidAutoShim && (!IDB.indexedDB || poorIndexedDbSupport) && _CFG2.default.win.openDatabase !== undefined) {
         IDB.shimIndexedDB.__useShim();
