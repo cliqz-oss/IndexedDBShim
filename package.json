@@ -1,6 +1,6 @@
 {
   "name": "@cliqz/indexeddbshim",
-  "version": "3.4.0",
+  "version": "3.4.1",
   "author": "Parashuram <code@nparashuram.com>",
   "contributors": [
     "Brett Zamir"
@@ -117,8 +117,5 @@
     "xmlhttprequest": "https://github.com/brettz9/node-XMLHttpRequest#local-and-prototype"
   },
   "bundleDependencies": [],
-  "license": "(MIT OR Apache-2.0)",
-  "engines": {
-    "node": ">=6.9.2 <= 8.9.4 || >= 9.0.0"
-  }
+  "license": "(MIT OR Apache-2.0)"
 }
