@@ -1,6 +1,6 @@
 {
   "name": "@cliqz/indexeddbshim",
-  "version": "3.4.1",
+  "version": "3.6.3",
   "author": "Parashuram <code@nparashuram.com>",
   "contributors": [
     "Brett Zamir"
@@ -38,7 +38,7 @@
     "mock": "grunt clean-mock && grunt mock && grunt clean-mock",
     "w3c-old": "grunt clean-w3c-old && grunt w3c-old && grunt clean-w3c-old",
     "tests-polyfill": "grunt clean-polyfill && npm run fake && npm run mock && npm run w3c-old && browserify-test -t [ babelify --presets es2015 ] tests-polyfill/**/*.js",
-    "web-platform-tests": "./web-platform-tests/wpt serve",
+    "web-platform-tests": "cd web-platform-tests && ./wpt serve",
     "w3c": "npm run w3c-build && npm run w3c-test",
     "w3c-add-wrap": "node test-support/wrap-w3c-tests",
     "w3c-remove-wrap": "node test-support/wrap-w3c-tests remove",
@@ -51,10 +51,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/cliqz-oss/IndexedDBShim.git"
+    "url": "git://github.com/axemclion/IndexedDBShim.git"
   },
   "bugs": {
-    "url": "https://github.com/cliqz-oss/IndexedDBShim/issues"
+    "url": "https://github.com/axemclion/IndexedDBShim/issues"
   },
   "main": "dist/indexeddbshim-node.js",
   "browser": "dist/indexeddbshim.min.js",
@@ -67,11 +67,11 @@
   ],
   "dependencies": {
     "babel-polyfill": "6.26.0",
-    "eventtargeter": "0.3.1",
+    "eventtargeter": "0.4.0",
     "sync-promise": "https://github.com/brettz9/sync-promise#full-sync-missing-promise-features",
-    "typeson": "5.7.1",
-    "typeson-registry": "1.0.0-alpha.18",
-    "unicode-9.0.0": "0.7.4",
+    "typeson": "5.8.2",
+    "typeson-registry": "1.0.0-alpha.20",
+    "unicode-10.0.0": "0.7.5",
     "websql": "https://github.com/brettz9/node-websql#configurable"
   },
   "devDependencies": {
@@ -81,41 +81,44 @@
     "babelify": "8.0.0",
     "bson": "1.0.4",
     "chai": "4.1.2",
-    "cheerio": "0.22.0",
     "colors": "1.1.2",
     "cyclonejs": "1.1.4",
-    "eslint": "4.13.0",
-    "eslint-config-standard": "10.2.1",
-    "eslint-plugin-compat": "2.1.0",
+    "eslint": "4.18.1",
+    "eslint-config-standard": "11.0.0",
+    "eslint-plugin-compat": "2.2.0",
     "eslint-plugin-import": "2.8.0",
-    "eslint-plugin-node": "5.2.1",
+    "eslint-plugin-node": "6.0.0",
     "eslint-plugin-promise": "3.6.0",
     "eslint-plugin-standard": "3.0.1",
-    "grunt": "1.0.1",
+    "grunt": "1.0.2",
     "grunt-browserify": "5.2.0",
     "grunt-cli": "1.2.0",
     "grunt-contrib-clean": "1.1.0",
     "grunt-contrib-connect": "1.0.2",
     "grunt-contrib-copy": "1.0.0",
     "grunt-contrib-qunit": "2.0.0",
-    "grunt-contrib-uglify": "git://github.com/gruntjs/grunt-contrib-uglify.git#harmony",
+    "grunt-contrib-uglify-es": "git://github.com/gruntjs/grunt-contrib-uglify.git#harmony",
     "grunt-contrib-watch": "1.0.0",
     "grunt-mocha-test": "0.13.3",
     "grunt-node-qunit": "https://github.com/brettz9/grunt-node-qunit",
     "grunt-saucelabs": "9.0.0",
     "gruntify-eslint": "4.0.0",
     "is-date-object": "1.0.1",
+    "isomorphic-fetch": "^2.2.1",
     "js-polyfills": "https://github.com/brettz9/polyfill#node",
-    "jsdom": "11.5.1",
+    "jsdom": "11.6.2",
     "mapstraction": "https://github.com/brettz9/mapstraction#relativePaths",
-    "mocha": "4.0.1",
-    "sinon": "4.1.3",
-    "source-map-support": "0.5.0",
+    "mocha": "5.0.1",
+    "sinon": "4.3.0",
+    "source-map-support": "0.5.3",
     "sourcemap-transformer": "https://github.com/brettz9/sourcemap-transformer",
     "w3c-blob": "0.0.1",
-    "ws": "3.3.2",
+    "ws": "4.0.0",
     "xmlhttprequest": "https://github.com/brettz9/node-XMLHttpRequest#local-and-prototype"
   },
   "bundleDependencies": [],
-  "license": "(MIT OR Apache-2.0)"
+  "license": "(MIT OR Apache-2.0)",
+  "engines": {
+    "node": ">=6.9.2"
+  }
 }

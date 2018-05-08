@@ -214,7 +214,7 @@ ShimCustomEvent.prototype.initCustomEvent = function (type, bubbles, cancelable,
 };
 ShimCustomEvent[Symbol.toStringTag] = 'Function';
 ShimCustomEvent.prototype[Symbol.toStringTag] = 'CustomEventPrototype';
-Object.setPrototypeOf(ShimCustomEvent, ShimEvent); // TODO: IDL needs but reported as slow!
+
 Object.defineProperty(ShimCustomEvent.prototype, 'detail', {
     enumerable: true,
     configurable: true,
@@ -222,7 +222,6 @@ Object.defineProperty(ShimCustomEvent.prototype, 'detail', {
         throw new TypeError('Illegal invocation');
     }
 });
-Object.setPrototypeOf(ShimCustomEvent.prototype, ShimEvent.prototype); // TODO: IDL needs but reported as slow!
 Object.defineProperty(ShimCustomEvent, 'prototype', {
     writable: false
 });
@@ -591,6 +590,13 @@ EventTarget.ShimDOMException = exports.ShimDOMException;
 EventTarget.ShimEventTarget = EventTarget;
 EventTarget.EventTargetFactory = EventTargetFactory;
 
+function setPrototypeOfCustomEvent() {
+    // TODO: IDL needs but reported as slow!
+    Object.setPrototypeOf(ShimCustomEvent, ShimEvent);
+    Object.setPrototypeOf(ShimCustomEvent.prototype, ShimEvent.prototype);
+}
+
+exports.setPrototypeOfCustomEvent = setPrototypeOfCustomEvent;
 exports.EventTargetFactory = EventTargetFactory;
 exports.ShimEventTarget = EventTarget;
 exports.ShimEvent = ShimEvent;
@@ -761,13 +767,13 @@ module.exports = SyncPromise;
 
 },{}],3:[function(require,module,exports){
 (function (global){
-!function(e,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t():"function"==typeof define&&define.amd?define(t):(e.Typeson=e.Typeson||{},e.Typeson.presets=e.Typeson.presets||{},e.Typeson.presets.structuredCloningThrowing=t())}(this,function(){"use strict";function isThenable(e,t){return Typeson.isObject(e)&&"function"==typeof e.then&&(!t||"function"==typeof e.catch)}function toStringTag(e){return o.call(e).slice(8,-1)}function hasConstructorOf(t,n){if(!t||"object"!==(void 0===t?"undefined":e(t)))return!1;var r=s(t);if(!r)return!1;var i=a.call(r,"constructor")&&r.constructor;return"function"!=typeof i?null===n:"function"==typeof i&&null!==n&&c.call(i)===c.call(n)}function isPlainObject(e){if(!e||"Object"!==toStringTag(e))return!1;return!s(e)||hasConstructorOf(e,Object)}function isUserObject(e){if(!e||"Object"!==toStringTag(e))return!1;var t=s(e);return!t||(hasConstructorOf(e,Object)||isUserObject(t))}function isObject(t){return t&&"object"===(void 0===t?"undefined":e(t))}function Typeson(o){var s=[],a=[],c={},u=this.types={},f=this.stringify=function(e,t,n,r){r=Object.assign({},o,r,{stringification:!0});var s=l(e,null,r);return i(s)?JSON.stringify(s[0],t,n):s.then(function(e){return JSON.stringify(e,t,n)})};this.stringifySync=function(e,t,n,r){return f(e,t,n,Object.assign({},{throwOnBadSyncType:!0},r,{sync:!0}))},this.stringifyAsync=function(e,t,n,r){return f(e,t,n,Object.assign({},{throwOnBadSyncType:!0},r,{sync:!1}))};var p=this.parse=function(e,t,n){return n=Object.assign({},o,n,{parse:!0}),y(JSON.parse(e,t),n)};this.parseSync=function(e,t,n){return p(e,t,Object.assign({},{throwOnBadSyncType:!0},n,{sync:!0}))},this.parseAsync=function(e,t,n){return p(e,t,Object.assign({},{throwOnBadSyncType:!0},n,{sync:!1}))},this.specialTypeNames=function(e,t){var n=arguments.length>2&&void 0!==arguments[2]?arguments[2]:{};return n.returnTypeNames=!0,this.encapsulate(e,t,n)},this.rootTypeName=function(e,t){var n=arguments.length>2&&void 0!==arguments[2]?arguments[2]:{};return n.iterateNone=!0,this.encapsulate(e,t,n)};var l=this.encapsulate=function(u,f,p){function finish(e){var t=Object.values(y);if(p.iterateNone)return t.length?t[0]:Typeson.getJSONType(e);if(t.length){if(p.returnTypeNames)return[].concat(n(new Set(t)));e&&isPlainObject(e)&&!e.hasOwnProperty("$types")?e.$types=y:e={$:e,$types:{$:y}}}else isObject(e)&&e.hasOwnProperty("$types")&&(e={$:e,$types:!0});return!p.returnTypeNames&&e}function checkPromises(e,n){return Promise.all(n.map(function(e){return e[1].p})).then(function(r){return Promise.all(r.map(function(r){var i=[],o=n.splice(0,1)[0],s=t(o,7),a=s[0],c=s[2],u=s[3],f=s[4],p=s[5],l=s[6],y=_encapsulate(a,r,c,u,i,!0,l),v=hasConstructorOf(y,TypesonPromise);return a&&v?y.p.then(function(t){return f[p]=t,checkPromises(e,i)}):(a?f[p]=y:e=v?y.p:y,checkPromises(e,i))}))}).then(function(){return e})}function _encapsulate(t,n,o,a,c,u,f){var l=void 0,h={},g=void 0===n?"undefined":e(n),b=m?function(e){var r=f||a.type||Typeson.getJSONType(n);m(Object.assign(e||h,{keypath:t,value:n,cyclic:o,stateObj:a,promisesData:c,resolvingTypesonPromise:u,awaitingTypesonPromise:hasConstructorOf(n,TypesonPromise)},void 0!==r?{type:r}:{}))}:null;if(g in{string:1,boolean:1,number:1,undefined:1})return void 0===n||"number"===g&&(isNaN(n)||n===-1/0||n===1/0)?(l=replace(t,n,a,c,!1,u,b))!==n&&(h={replaced:l}):l=n,b&&b(),l;if(null===n)return b&&b(),n;if(o&&!a.iterateIn&&!a.iterateUnsetNumeric){var T=v.indexOf(n);if(!(T<0))return y[t]="#",b&&b({cyclicKeypath:d[T]}),"#"+d[T];!0===o&&(v.push(n),d.push(t))}var O=isPlainObject(n),w=i(n),S=(O||w)&&(!s.length||a.replaced)||a.iterateIn?n:replace(t,n,a,c,O||w,null,b),P=void 0;if(S!==n?(l=S,h={replaced:S}):w||"array"===a.iterateIn?(P=new Array(n.length),h={clone:P}):O||"object"===a.iterateIn?h={clone:P={}}:""===t&&hasConstructorOf(n,TypesonPromise)?(c.push([t,n,o,a,void 0,void 0,a.type]),l=n):l=n,b&&b(),p.iterateNone)return P||l;if(!P)return l;if(a.iterateIn){for(var j in n){var A={ownKeys:n.hasOwnProperty(j)},C=t+(t?".":"")+escapeKeyPathComponent(j),N=_encapsulate(C,n[j],!!o,A,c,u);hasConstructorOf(N,TypesonPromise)?c.push([C,N,!!o,A,P,j,A.type]):void 0!==N&&(P[j]=N)}b&&b({endIterateIn:!0,end:!0})}else r(n).forEach(function(e){var r=t+(t?".":"")+escapeKeyPathComponent(e),i={ownKeys:!0},s=_encapsulate(r,n[e],!!o,i,c,u);hasConstructorOf(s,TypesonPromise)?c.push([r,s,!!o,i,P,e,i.type]):void 0!==s&&(P[e]=s)}),b&&b({endIterateOwn:!0,end:!0});if(a.iterateUnsetNumeric){for(var B=n.length,E=0;E<B;E++)if(!(E in n)){var I=t+(t?".":"")+E,U={ownKeys:!1},K=_encapsulate(I,void 0,!!o,U,c,u);hasConstructorOf(K,TypesonPromise)?c.push([I,K,!!o,U,P,E,U.type]):void 0!==K&&(P[E]=K)}b&&b({endIterateUnsetNumeric:!0,end:!0})}return P}function replace(e,t,n,r,i,o,u){for(var f=i?s:a,p=f.length;p--;){var v=f[p];if(v.test(t,n)){var d=v.type;if(c[d]){var h=y[e];y[e]=h?[d].concat(h):d}if(n=Object.assign(n,{type:d,replaced:!0}),(l||!v.replaceAsync)&&!v.replace)return u&&u({typeDetected:!0}),_encapsulate(e,t,g&&"readonly",n,r,o,d);u&&u({replacing:!0});return _encapsulate(e,v[l||!v.replaceAsync?"replace":"replaceAsync"](t,n),g&&"readonly",n,r,o,d)}}return t}var l=(p=Object.assign({sync:!0},o,p)).sync,y={},v=[],d=[],h=[],g=!(p&&"cyclic"in p)||p.cyclic,m=p.encapsulateObserver,b=_encapsulate("",u,g,f||{},h);return h.length?l&&p.throwOnBadSyncType?function(){throw new TypeError("Sync method requested but async result obtained")}():Promise.resolve(checkPromises(b,h)).then(finish):!l&&p.throwOnBadSyncType?function(){throw new TypeError("Async method requested but sync result obtained")}():p.stringification&&l?[finish(b)]:l?finish(b):Promise.resolve(finish(b))};this.encapsulateSync=function(e,t,n){return l(e,t,Object.assign({},{throwOnBadSyncType:!0},n,{sync:!0}))},this.encapsulateAsync=function(e,t,n){return l(e,t,Object.assign({},{throwOnBadSyncType:!0},n,{sync:!1}))};var y=this.revive=function(e,n){function _revive(e,n,o,s,p,l){if(!u||"$types"!==e){var y=a[e];if(i(n)||isPlainObject(n)){var v=i(n)?new Array(n.length):{};for(r(n).forEach(function(t){var r=_revive(e+(e?".":"")+escapeKeyPathComponent(t),n[t],o||v,s,v,t);hasConstructorOf(r,Undefined)?v[t]=void 0:void 0!==r&&(v[t]=r)}),n=v;f.length;){var d=t(f[0],4),h=d[0],g=d[1],m=d[2],b=d[3],T=getByKeyPath(h,g);if(hasConstructorOf(T,Undefined))m[b]=void 0;else{if(void 0===T)break;m[b]=T}f.splice(0,1)}}if(!y)return n;if("#"===y){var O=getByKeyPath(o,n.substr(1));return void 0===O&&f.push([o,n.substr(1),p,l]),O}var w=s.sync;return[].concat(y).reduce(function(e,t){var n=c[t];if(!n)throw new Error("Unregistered type: "+t);return n[w&&n.revive?"revive":!w&&n.reviveAsync?"reviveAsync":"revive"](e)},n)}}var s=(n=Object.assign({sync:!0},o,n)).sync,a=e&&e.$types,u=!0;if(!a)return e;if(!0===a)return e.$;a.$&&isPlainObject(a.$)&&(e=e.$,a=a.$,u=!1);var f=[],p=_revive("",e,null,n);return p=hasConstructorOf(p,Undefined)?void 0:p,isThenable(p)?s&&n.throwOnBadSyncType?function(){throw new TypeError("Sync method requested but async result obtained")}():p:!s&&n.throwOnBadSyncType?function(){throw new TypeError("Async method requested but sync result obtained")}():s?p:Promise.resolve(p)};this.reviveSync=function(e,t){return y(e,Object.assign({},{throwOnBadSyncType:!0},t,{sync:!0}))},this.reviveAsync=function(e,t){return y(e,Object.assign({},{throwOnBadSyncType:!0},t,{sync:!1}))},this.register=function(e,t){return t=t||{},[].concat(e).forEach(function R(e){if(i(e))return e.map(R);e&&r(e).forEach(function(n){if("#"===n)throw new TypeError("# cannot be used as a type name as it is reserved for cyclic objects");if(Typeson.JSON_TYPES.includes(n))throw new TypeError("Plain JSON object types are reserved as type names");var r=e[n],o=r.testPlainObjects?s:a,f=o.filter(function(e){return e.type===n});if(f.length&&(o.splice(o.indexOf(f[0]),1),delete c[n],delete u[n]),r){if("function"==typeof r){var p=r;r={test:function test(e){return e&&e.constructor===p},replace:function replace(e){return assign({},e)},revive:function revive(e){return assign(Object.create(p.prototype),e)}}}else i(r)&&(r={test:r[0],replace:r[1],revive:r[2]});var l={type:n,test:r.test.bind(r)};r.replace&&(l.replace=r.replace.bind(r)),r.replaceAsync&&(l.replaceAsync=r.replaceAsync.bind(r));var y="number"==typeof t.fallback?t.fallback:t.fallback?0:1/0;if(r.testPlainObjects?s.splice(y,0,l):a.splice(y,0,l),r.revive||r.reviveAsync){var v={};r.revive&&(v.revive=r.revive.bind(r)),r.reviveAsync&&(v.reviveAsync=r.reviveAsync.bind(r)),c[n]=v}u[n]=r}})}),this}}function assign(e,t){return r(t).map(function(n){e[n]=t[n]}),e}function escapeKeyPathComponent(e){return e.replace(/~/g,"~0").replace(/\./g,"~1")}function unescapeKeyPathComponent(e){return e.replace(/~1/g,".").replace(/~0/g,"~")}function getByKeyPath(e,t){if(""===t)return e;var n=t.indexOf(".");if(n>-1){var r=e[unescapeKeyPathComponent(t.substr(0,n))];return void 0===r?void 0:getByKeyPath(r,t.substr(n+1))}return e[unescapeKeyPathComponent(t)]}function Undefined(){}function TypesonPromise(e){this.p=new Promise(e)}var e="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e},t=function(){return function(e,t){if(Array.isArray(e))return e;if(Symbol.iterator in Object(e))return function sliceIterator(e,t){var n=[],r=!0,i=!1,o=void 0;try{for(var s,a=e[Symbol.iterator]();!(r=(s=a.next()).done)&&(n.push(s.value),!t||n.length!==t);r=!0);}catch(e){i=!0,o=e}finally{try{!r&&a.return&&a.return()}finally{if(i)throw o}}return n}(e,t);throw new TypeError("Invalid attempt to destructure non-iterable instance")}}(),n=function(e){if(Array.isArray(e)){for(var t=0,n=Array(e.length);t<e.length;t++)n[t]=e[t];return n}return Array.from(e)},r=Object.keys,i=Array.isArray,o={}.toString,s=Object.getPrototypeOf,a={}.hasOwnProperty,c=a.toString;TypesonPromise.prototype.then=function(e,t){var n=this;return new TypesonPromise(function(r,i){n.p.then(function(t){r(e?e(t):t)},function(e){n.p.catch(function(e){return t?t(e):Promise.reject(e)}).then(r,i)})})},TypesonPromise.prototype.catch=function(e){return this.then(null,e)},TypesonPromise.resolve=function(e){return new TypesonPromise(function(t){t(e)})},TypesonPromise.reject=function(e){return new TypesonPromise(function(t,n){n(e)})},["all","race"].map(function(e){TypesonPromise[e]=function(t){return new TypesonPromise(function(n,r){Promise[e](t.map(function(e){return e.p})).then(n,r)})}}),Typeson.Undefined=Undefined,Typeson.Promise=TypesonPromise,Typeson.isThenable=isThenable,Typeson.toStringTag=toStringTag,Typeson.hasConstructorOf=hasConstructorOf,Typeson.isObject=isObject,Typeson.isPlainObject=isPlainObject,Typeson.isUserObject=isUserObject,Typeson.escapeKeyPathComponent=escapeKeyPathComponent,Typeson.unescapeKeyPathComponent=unescapeKeyPathComponent,Typeson.getByKeyPath=getByKeyPath,Typeson.getJSONType=function(t){return null===t?"null":i(t)?"array":void 0===t?"undefined":e(t)},Typeson.JSON_TYPES=["null","boolean","number","string","array","object"];for(var u={userObject:{test:function test(e,t){return Typeson.isUserObject(e)},replace:function replace(e){return Object.assign({},e)},revive:function revive(e){return e}}},f=[[{sparseArrays:{testPlainObjects:!0,test:function test(e){return Array.isArray(e)},replace:function replace(e,t){return t.iterateUnsetNumeric=!0,e}}},{sparseUndefined:{test:function test(e,t){return void 0===e&&!1===t.ownKeys},replace:function replace(e){return null},revive:function revive(e){}}}],{undef:{test:function test(e,t){return void 0===e&&(t.ownKeys||!("ownKeys"in t))},replace:function replace(e){return null},revive:function revive(e){return new Typeson.Undefined}}}],p={StringObject:{test:function test(t){return"String"===Typeson.toStringTag(t)&&"object"===(void 0===t?"undefined":e(t))},replace:function replace(e){return String(e)},revive:function revive(e){return new String(e)}},BooleanObject:{test:function test(t){return"Boolean"===Typeson.toStringTag(t)&&"object"===(void 0===t?"undefined":e(t))},replace:function replace(e){return Boolean(e)},revive:function revive(e){return new Boolean(e)}},NumberObject:{test:function test(t){return"Number"===Typeson.toStringTag(t)&&"object"===(void 0===t?"undefined":e(t))},replace:function replace(e){return Number(e)},revive:function revive(e){return new Number(e)}}},l=[{nan:{test:function test(e){return"number"==typeof e&&isNaN(e)},replace:function replace(e){return"NaN"},revive:function revive(e){return NaN}}},{infinity:{test:function test(e){return e===1/0},replace:function replace(e){return"Infinity"},revive:function revive(e){return 1/0}}},{negativeInfinity:{test:function test(e){return e===-1/0},replace:function replace(e){return"-Infinity"},revive:function revive(e){return-1/0}}}],y={date:{test:function test(e){return"Date"===Typeson.toStringTag(e)},replace:function replace(e){var t=e.getTime();return isNaN(t)?"NaN":t},revive:function revive(e){return"NaN"===e?new Date(NaN):new Date(e)}}},v={regexp:{test:function test(e){return"RegExp"===Typeson.toStringTag(e)},replace:function replace(e){return{source:e.source,flags:(e.global?"g":"")+(e.ignoreCase?"i":"")+(e.multiline?"m":"")+(e.sticky?"y":"")+(e.unicode?"u":"")}},revive:function revive(e){var t=e.source,n=e.flags;return new RegExp(t,n)}}},d={map:{test:function test(e){return"Map"===Typeson.toStringTag(e)},replace:function replace(e){return Array.from(e.entries())},revive:function revive(e){return new Map(e)}}},h={set:{test:function test(e){return"Set"===Typeson.toStringTag(e)},replace:function replace(e){return Array.from(e.values())},revive:function revive(e){return new Set(e)}}},g="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",m=new Uint8Array(256),b=0;b<g.length;b++)m[g.charCodeAt(b)]=b;var T=function encode(e,t,n){for(var r=new Uint8Array(e,t,n),i=r.length,o="",s=0;s<i;s+=3)o+=g[r[s]>>2],o+=g[(3&r[s])<<4|r[s+1]>>4],o+=g[(15&r[s+1])<<2|r[s+2]>>6],o+=g[63&r[s+2]];return i%3==2?o=o.substring(0,o.length-1)+"=":i%3==1&&(o=o.substring(0,o.length-2)+"=="),o},O=function decode(e){var t=e.length,n=.75*e.length,r=0,i=void 0,o=void 0,s=void 0,a=void 0;"="===e[e.length-1]&&(n--,"="===e[e.length-2]&&n--);for(var c=new ArrayBuffer(n),u=new Uint8Array(c),f=0;f<t;f+=4)i=m[e.charCodeAt(f)],o=m[e.charCodeAt(f+1)],s=m[e.charCodeAt(f+2)],a=m[e.charCodeAt(f+3)],u[r++]=i<<2|o>>4,u[r++]=(15&o)<<4|s>>2,u[r++]=(3&s)<<6|63&a;return c},w={arraybuffer:{test:function test(e){return"ArrayBuffer"===Typeson.toStringTag(e)},replace:function replace(e){return T(e)},revive:function revive(e){return O(e)}}},S="undefined"==typeof self?global:self,P={};["Int8Array","Uint8Array","Uint8ClampedArray","Int16Array","Uint16Array","Int32Array","Uint32Array","Float32Array","Float64Array"].forEach(function(e){var t=e,n=S[t];n&&(P[e.toLowerCase()]={test:function test(e){return Typeson.toStringTag(e)===t},replace:function replace(e){return T(e.buffer,e.byteOffset,e.byteLength)},revive:function revive(e){return new n(O(e))}})});var j={dataview:{test:function test(e){return"DataView"===Typeson.toStringTag(e)},replace:function replace(e){var t=e.buffer,n=e.byteOffset,r=e.byteLength;return{buffer:T(t),byteOffset:n,byteLength:r}},revive:function revive(e){var t=e.buffer,n=e.byteOffset,r=e.byteLength;return new DataView(O(t),n,r)}}},A={IntlCollator:{test:function test(e){return Typeson.hasConstructorOf(e,Intl.Collator)},replace:function replace(e){return e.resolvedOptions()},revive:function revive(e){return new Intl.Collator(e.locale,e)}},IntlDateTimeFormat:{test:function test(e){return Typeson.hasConstructorOf(e,Intl.DateTimeFormat)},replace:function replace(e){return e.resolvedOptions()},revive:function revive(e){return new Intl.DateTimeFormat(e.locale,e)}},IntlNumberFormat:{test:function test(e){return Typeson.hasConstructorOf(e,Intl.NumberFormat)},replace:function replace(e){return e.resolvedOptions()},revive:function revive(e){return new Intl.NumberFormat(e.locale,e)}}},C={file:{test:function test(e){return"File"===Typeson.toStringTag(e)},replace:function replace(e){var t=new XMLHttpRequest;if(t.open("GET",URL.createObjectURL(e),!1),200!==t.status&&0!==t.status)throw new Error("Bad Blob access: "+t.status);return t.send(),{type:e.type,stringContents:t.responseText,name:e.name,lastModified:e.lastModified}},revive:function revive(e){var t=e.name,n=e.type,r=e.stringContents,i=e.lastModified;return new File([r],t,{type:n,lastModified:i})},replaceAsync:function replaceAsync(e){return new Typeson.Promise(function(t,n){if(e.isClosed)n(new Error("The File is closed"));else{var r=new FileReader;r.addEventListener("load",function(){t({type:e.type,stringContents:r.result,name:e.name,lastModified:e.lastModified})}),r.addEventListener("error",function(){n(r.error)}),r.readAsText(e)}})}}};return[u,f,p,l,y,v,{imagedata:{test:function test(e){return"ImageData"===Typeson.toStringTag(e)},replace:function replace(e){return{array:Array.from(e.data),width:e.width,height:e.height}},revive:function revive(e){return new ImageData(new Uint8ClampedArray(e.array),e.width,e.height)}}},{imagebitmap:{test:function test(e){return"ImageBitmap"===Typeson.toStringTag(e)||e&&e.dataset&&"ImageBitmap"===e.dataset.toStringTag},replace:function replace(e){var t=document.createElement("canvas");return t.getContext("2d").drawImage(e,0,0),t.toDataURL()},revive:function revive(e){var t=document.createElement("canvas"),n=t.getContext("2d"),r=document.createElement("img");return r.onload=function(){n.drawImage(r,0,0)},r.src=e,t},reviveAsync:function reviveAsync(e){var t=document.createElement("canvas"),n=t.getContext("2d"),r=document.createElement("img");return r.onload=function(){n.drawImage(r,0,0)},r.src=e,createImageBitmap(t)}}},C,{file:C.file,filelist:{test:function test(e){return"FileList"===Typeson.toStringTag(e)},replace:function replace(e){for(var t=[],n=0;n<e.length;n++)t[n]=e.item(n);return t},revive:function revive(e){function FileList(){this._files=arguments[0],this.length=this._files.length}return FileList.prototype.item=function(e){return this._files[e]},FileList.prototype[Symbol.toStringTag]="FileList",new FileList(e)}}},{blob:{test:function test(e){return"Blob"===Typeson.toStringTag(e)},replace:function replace(e){var t=new XMLHttpRequest;if(t.open("GET",URL.createObjectURL(e),!1),200!==t.status&&0!==t.status)throw new Error("Bad Blob access: "+t.status);return t.send(),{type:e.type,stringContents:t.responseText}},revive:function revive(e){var t=e.type,n=e.stringContents;return new Blob([n],{type:t})},replaceAsync:function replaceAsync(e){return new Typeson.Promise(function(t,n){if(e.isClosed)n(new Error("The Blob is closed"));else{var r=new FileReader;r.addEventListener("load",function(){t({type:e.type,stringContents:r.result})}),r.addEventListener("error",function(){n(r.error)}),r.readAsText(e)}})}}}].concat("function"==typeof Map?d:[],"function"==typeof Set?h:[],"function"==typeof ArrayBuffer?w:[],"function"==typeof Uint8Array?P:[],"function"==typeof DataView?j:[],"undefined"!=typeof Intl?A:[]).concat({checkDataCloneException:[function(t){var n={}.toString.call(t).slice(8,-1);if(["symbol","function"].includes(void 0===t?"undefined":e(t))||["Arguments","Module","Error","Promise","WeakMap","WeakSet"].includes(n)||t===Object.prototype||("Blob"===n||"File"===n)&&t.isClosed||t&&"object"===(void 0===t?"undefined":e(t))&&"number"==typeof t.nodeType&&"function"==typeof t.insertBefore)throw new DOMException("The object cannot be cloned.","DataCloneError");return!1}]})});
+!function(e,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t():"function"==typeof define&&define.amd?define(t):(e.Typeson=e.Typeson||{},e.Typeson.presets=e.Typeson.presets||{},e.Typeson.presets.structuredCloningThrowing=t())}(this,function(){"use strict";var e="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e},t=function(){return function(e,t){if(Array.isArray(e))return e;if(Symbol.iterator in Object(e))return function sliceIterator(e,t){var n=[],r=!0,i=!1,o=void 0;try{for(var s,a=e[Symbol.iterator]();!(r=(s=a.next()).done)&&(n.push(s.value),!t||n.length!==t);r=!0);}catch(e){i=!0,o=e}finally{try{!r&&a.return&&a.return()}finally{if(i)throw o}}return n}(e,t);throw new TypeError("Invalid attempt to destructure non-iterable instance")}}(),n=function(e){if(Array.isArray(e)){for(var t=0,n=Array(e.length);t<e.length;t++)n[t]=e[t];return n}return Array.from(e)},r=Object.keys,i=Array.isArray,o={}.toString,s=Object.getPrototypeOf,a={}.hasOwnProperty,c=a.toString,u=["type","replaced","iterateIn","iterateUnsetNumeric"];function isThenable(e,t){return Typeson.isObject(e)&&"function"==typeof e.then&&(!t||"function"==typeof e.catch)}function toStringTag(e){return o.call(e).slice(8,-1)}function hasConstructorOf(t,n){if(!t||"object"!==(void 0===t?"undefined":e(t)))return!1;var r=s(t);if(!r)return!1;var i=a.call(r,"constructor")&&r.constructor;return"function"!=typeof i?null===n:"function"==typeof i&&null!==n&&c.call(i)===c.call(n)}function isPlainObject(e){return!(!e||"Object"!==toStringTag(e))&&(!s(e)||hasConstructorOf(e,Object))}function isObject(t){return t&&"object"===(void 0===t?"undefined":e(t))}function Typeson(o){var s=[],a=[],c={},f=this.types={},p=this.stringify=function(e,t,n,r){r=Object.assign({},o,r,{stringification:!0});var s=y(e,null,r);return i(s)?JSON.stringify(s[0],t,n):s.then(function(e){return JSON.stringify(e,t,n)})};this.stringifySync=function(e,t,n,r){return p(e,t,n,Object.assign({},{throwOnBadSyncType:!0},r,{sync:!0}))},this.stringifyAsync=function(e,t,n,r){return p(e,t,n,Object.assign({},{throwOnBadSyncType:!0},r,{sync:!1}))};var l=this.parse=function(e,t,n){return n=Object.assign({},o,n,{parse:!0}),v(JSON.parse(e,t),n)};this.parseSync=function(e,t,n){return l(e,t,Object.assign({},{throwOnBadSyncType:!0},n,{sync:!0}))},this.parseAsync=function(e,t,n){return l(e,t,Object.assign({},{throwOnBadSyncType:!0},n,{sync:!1}))},this.specialTypeNames=function(e,t){var n=arguments.length>2&&void 0!==arguments[2]?arguments[2]:{};return n.returnTypeNames=!0,this.encapsulate(e,t,n)},this.rootTypeName=function(e,t){var n=arguments.length>2&&void 0!==arguments[2]?arguments[2]:{};return n.iterateNone=!0,this.encapsulate(e,t,n)};var y=this.encapsulate=function(f,p,l){var y=(l=Object.assign({sync:!0},o,l)).sync,v={},d=[],h=[],b=[],g=!(l&&"cyclic"in l)||l.cyclic,m=l.encapsulateObserver,T=_encapsulate("",f,g,p||{},b);function finish(e){var t=Object.values(v);if(l.iterateNone)return t.length?t[0]:Typeson.getJSONType(e);if(t.length){if(l.returnTypeNames)return[].concat(n(new Set(t)));e&&isPlainObject(e)&&!e.hasOwnProperty("$types")?e.$types=v:e={$:e,$types:{$:v}}}else isObject(e)&&e.hasOwnProperty("$types")&&(e={$:e,$types:!0});return!l.returnTypeNames&&e}return b.length?y&&l.throwOnBadSyncType?function(){throw new TypeError("Sync method requested but async result obtained")}():Promise.resolve(function checkPromises(e,n){return Promise.all(n.map(function(e){return e[1].p})).then(function(r){return Promise.all(r.map(function(r){var i=[],o=n.splice(0,1)[0],s=t(o,7),a=s[0],c=s[2],u=s[3],f=s[4],p=s[5],l=s[6],y=_encapsulate(a,r,c,u,i,!0,l),v=hasConstructorOf(y,TypesonPromise);return a&&v?y.p.then(function(t){return f[p]=t,checkPromises(e,i)}):(a?f[p]=y:e=v?y.p:y,checkPromises(e,i))}))}).then(function(){return e})}(T,b)).then(finish):!y&&l.throwOnBadSyncType?function(){throw new TypeError("Async method requested but sync result obtained")}():l.stringification&&y?[finish(T)]:y?finish(T):Promise.resolve(finish(T));function _adaptBuiltinStateObjectProperties(e,t,n){Object.assign(e,t);var r=u.map(function(t){var n=e[t];return delete e[t],n});n(),u.forEach(function(t,n){e[t]=r[n]})}function _encapsulate(t,n,o,a,c,u,f){var p=void 0,y={},b=void 0===n?"undefined":e(n),g=m?function(e){var r=f||a.type||Typeson.getJSONType(n);m(Object.assign(e||y,{keypath:t,value:n,cyclic:o,stateObj:a,promisesData:c,resolvingTypesonPromise:u,awaitingTypesonPromise:hasConstructorOf(n,TypesonPromise)},void 0!==r?{type:r}:{}))}:null;if(b in{string:1,boolean:1,number:1,undefined:1})return void 0===n||"number"===b&&(isNaN(n)||n===-1/0||n===1/0)?(p=replace(t,n,a,c,!1,u,g))!==n&&(y={replaced:p}):p=n,g&&g(),p;if(null===n)return g&&g(),n;if(o&&!a.iterateIn&&!a.iterateUnsetNumeric){var T=d.indexOf(n);if(!(T<0))return v[t]="#",g&&g({cyclicKeypath:h[T]}),"#"+h[T];!0===o&&(d.push(n),h.push(t))}var O=isPlainObject(n),w=i(n),S=(O||w)&&(!s.length||a.replaced)||a.iterateIn?n:replace(t,n,a,c,O||w,null,g),P=void 0;if(S!==n?(p=S,y={replaced:S}):w||"array"===a.iterateIn?(P=new Array(n.length),y={clone:P}):O||"object"===a.iterateIn?y={clone:P={}}:""===t&&hasConstructorOf(n,TypesonPromise)?(c.push([t,n,o,a,void 0,void 0,a.type]),p=n):p=n,g&&g(),l.iterateNone)return P||p;if(!P)return p;if(a.iterateIn){var j=function _loop(e){var r={ownKeys:n.hasOwnProperty(e)};_adaptBuiltinStateObjectProperties(a,r,function(){var r=t+(t?".":"")+escapeKeyPathComponent(e),i=_encapsulate(r,n[e],!!o,a,c,u);hasConstructorOf(i,TypesonPromise)?c.push([r,i,!!o,a,P,e,a.type]):void 0!==i&&(P[e]=i)})};for(var A in n)j(A);g&&g({endIterateIn:!0,end:!0})}else r(n).forEach(function(e){var r=t+(t?".":"")+escapeKeyPathComponent(e);_adaptBuiltinStateObjectProperties(a,{ownKeys:!0},function(){var t=_encapsulate(r,n[e],!!o,a,c,u);hasConstructorOf(t,TypesonPromise)?c.push([r,t,!!o,a,P,e,a.type]):void 0!==t&&(P[e]=t)})}),g&&g({endIterateOwn:!0,end:!0});if(a.iterateUnsetNumeric){for(var C=n.length,N=function _loop2(e){if(!(e in n)){var r=t+(t?".":"")+e;_adaptBuiltinStateObjectProperties(a,{ownKeys:!1},function(){var t=_encapsulate(r,void 0,!!o,a,c,u);hasConstructorOf(t,TypesonPromise)?c.push([r,t,!!o,a,P,e,a.type]):void 0!==t&&(P[e]=t)})}},B=0;B<C;B++)N(B);g&&g({endIterateUnsetNumeric:!0,end:!0})}return P}function replace(e,t,n,r,i,o,u){for(var f=i?s:a,p=f.length;p--;){var l=f[p];if(l.test(t,n)){var d=l.type;if(c[d]){var h=v[e];v[e]=h?[d].concat(h):d}return Object.assign(n,{type:d,replaced:!0}),!y&&l.replaceAsync||l.replace?(u&&u({replacing:!0}),_encapsulate(e,l[y||!l.replaceAsync?"replace":"replaceAsync"](t,n),g&&"readonly",n,r,o,d)):(u&&u({typeDetected:!0}),_encapsulate(e,t,g&&"readonly",n,r,o,d))}}return t}};this.encapsulateSync=function(e,t,n){return y(e,t,Object.assign({},{throwOnBadSyncType:!0},n,{sync:!0}))},this.encapsulateAsync=function(e,t,n){return y(e,t,Object.assign({},{throwOnBadSyncType:!0},n,{sync:!1}))};var v=this.revive=function(e,n){var s=(n=Object.assign({sync:!0},o,n)).sync,a=e&&e.$types,u=!0;if(!a)return e;if(!0===a)return e.$;a.$&&isPlainObject(a.$)&&(e=e.$,a=a.$,u=!1);var f=[],p={},l=function _revive(e,n,o,s,l,y){if(u&&"$types"===e)return;var v=a[e];if(i(n)||isPlainObject(n)){var d=i(n)?new Array(n.length):{};for(r(n).forEach(function(t){var r=_revive(e+(e?".":"")+escapeKeyPathComponent(t),n[t],o||d,s,d,t);hasConstructorOf(r,Undefined)?d[t]=void 0:void 0!==r&&(d[t]=r)}),n=d;f.length;){var h=t(f[0],4),b=h[0],g=h[1],m=h[2],T=h[3],O=getByKeyPath(b,g);if(hasConstructorOf(O,Undefined))m[T]=void 0;else{if(void 0===O)break;m[T]=O}f.splice(0,1)}}if(!v)return n;if("#"===v){var w=getByKeyPath(o,n.substr(1));return void 0===w&&f.push([o,n.substr(1),l,y]),w}var S=s.sync;return[].concat(v).reduce(function(e,t){var n=c[t];if(!n)throw new Error("Unregistered type: "+t);return n[S&&n.revive?"revive":!S&&n.reviveAsync?"reviveAsync":"revive"](e,p)},n)}("",e,null,n);return isThenable(l=hasConstructorOf(l,Undefined)?void 0:l)?s&&n.throwOnBadSyncType?function(){throw new TypeError("Sync method requested but async result obtained")}():l:!s&&n.throwOnBadSyncType?function(){throw new TypeError("Async method requested but sync result obtained")}():s?l:Promise.resolve(l)};this.reviveSync=function(e,t){return v(e,Object.assign({},{throwOnBadSyncType:!0},t,{sync:!0}))},this.reviveAsync=function(e,t){return v(e,Object.assign({},{throwOnBadSyncType:!0},t,{sync:!1}))},this.register=function(e,t){return t=t||{},[].concat(e).forEach(function R(e){if(i(e))return e.map(R);e&&r(e).forEach(function(n){if("#"===n)throw new TypeError("# cannot be used as a type name as it is reserved for cyclic objects");if(Typeson.JSON_TYPES.includes(n))throw new TypeError("Plain JSON object types are reserved as type names");var r=e[n],o=r.testPlainObjects?s:a,u=o.filter(function(e){return e.type===n});if(u.length&&(o.splice(o.indexOf(u[0]),1),delete c[n],delete f[n]),r){if("function"==typeof r){var p=r;r={test:function test(e){return e&&e.constructor===p},replace:function replace(e){return assign({},e)},revive:function revive(e){return assign(Object.create(p.prototype),e)}}}else i(r)&&(r={test:r[0],replace:r[1],revive:r[2]});var l={type:n,test:r.test.bind(r)};r.replace&&(l.replace=r.replace.bind(r)),r.replaceAsync&&(l.replaceAsync=r.replaceAsync.bind(r));var y="number"==typeof t.fallback?t.fallback:t.fallback?0:1/0;if(r.testPlainObjects?s.splice(y,0,l):a.splice(y,0,l),r.revive||r.reviveAsync){var v={};r.revive&&(v.revive=r.revive.bind(r)),r.reviveAsync&&(v.reviveAsync=r.reviveAsync.bind(r)),c[n]=v}f[n]=r}})}),this}}function assign(e,t){return r(t).map(function(n){e[n]=t[n]}),e}function escapeKeyPathComponent(e){return e.replace(/~/g,"~0").replace(/\./g,"~1")}function unescapeKeyPathComponent(e){return e.replace(/~1/g,".").replace(/~0/g,"~")}function getByKeyPath(e,t){if(""===t)return e;var n=t.indexOf(".");if(n>-1){var r=e[unescapeKeyPathComponent(t.substr(0,n))];return void 0===r?void 0:getByKeyPath(r,t.substr(n+1))}return e[unescapeKeyPathComponent(t)]}function Undefined(){}function TypesonPromise(e){this.p=new Promise(e)}TypesonPromise.prototype.then=function(e,t){var n=this;return new TypesonPromise(function(r,i){n.p.then(function(t){r(e?e(t):t)},function(e){n.p.catch(function(e){return t?t(e):Promise.reject(e)}).then(r,i)})})},TypesonPromise.prototype.catch=function(e){return this.then(null,e)},TypesonPromise.resolve=function(e){return new TypesonPromise(function(t){t(e)})},TypesonPromise.reject=function(e){return new TypesonPromise(function(t,n){n(e)})},["all","race"].map(function(e){TypesonPromise[e]=function(t){return new TypesonPromise(function(n,r){Promise[e](t.map(function(e){return e.p})).then(n,r)})}}),Typeson.Undefined=Undefined,Typeson.Promise=TypesonPromise,Typeson.isThenable=isThenable,Typeson.toStringTag=toStringTag,Typeson.hasConstructorOf=hasConstructorOf,Typeson.isObject=isObject,Typeson.isPlainObject=isPlainObject,Typeson.isUserObject=function isUserObject(e){if(!e||"Object"!==toStringTag(e))return!1;var t=s(e);return!t||hasConstructorOf(e,Object)||isUserObject(t)},Typeson.escapeKeyPathComponent=escapeKeyPathComponent,Typeson.unescapeKeyPathComponent=unescapeKeyPathComponent,Typeson.getByKeyPath=getByKeyPath,Typeson.getJSONType=function(t){return null===t?"null":i(t)?"array":void 0===t?"undefined":e(t)},Typeson.JSON_TYPES=["null","boolean","number","string","array","object"];for(var f={userObject:{test:function test(e,t){return Typeson.isUserObject(e)},replace:function replace(e){return Object.assign({},e)},revive:function revive(e){return e}}},p=[[{sparseArrays:{testPlainObjects:!0,test:function test(e){return Array.isArray(e)},replace:function replace(e,t){return t.iterateUnsetNumeric=!0,e}}},{sparseUndefined:{test:function test(e,t){return void 0===e&&!1===t.ownKeys},replace:function replace(e){return null},revive:function revive(e){}}}],{undef:{test:function test(e,t){return void 0===e&&(t.ownKeys||!("ownKeys"in t))},replace:function replace(e){return null},revive:function revive(e){return new Typeson.Undefined}}}],l={StringObject:{test:function test(t){return"String"===Typeson.toStringTag(t)&&"object"===(void 0===t?"undefined":e(t))},replace:function replace(e){return String(e)},revive:function revive(e){return new String(e)}},BooleanObject:{test:function test(t){return"Boolean"===Typeson.toStringTag(t)&&"object"===(void 0===t?"undefined":e(t))},replace:function replace(e){return Boolean(e)},revive:function revive(e){return new Boolean(e)}},NumberObject:{test:function test(t){return"Number"===Typeson.toStringTag(t)&&"object"===(void 0===t?"undefined":e(t))},replace:function replace(e){return Number(e)},revive:function revive(e){return new Number(e)}}},y=[{nan:{test:function test(e){return"number"==typeof e&&isNaN(e)},replace:function replace(e){return"NaN"},revive:function revive(e){return NaN}}},{infinity:{test:function test(e){return e===1/0},replace:function replace(e){return"Infinity"},revive:function revive(e){return 1/0}}},{negativeInfinity:{test:function test(e){return e===-1/0},replace:function replace(e){return"-Infinity"},revive:function revive(e){return-1/0}}}],v={date:{test:function test(e){return"Date"===Typeson.toStringTag(e)},replace:function replace(e){var t=e.getTime();return isNaN(t)?"NaN":t},revive:function revive(e){return"NaN"===e?new Date(NaN):new Date(e)}}},d={regexp:{test:function test(e){return"RegExp"===Typeson.toStringTag(e)},replace:function replace(e){return{source:e.source,flags:(e.global?"g":"")+(e.ignoreCase?"i":"")+(e.multiline?"m":"")+(e.sticky?"y":"")+(e.unicode?"u":"")}},revive:function revive(e){var t=e.source,n=e.flags;return new RegExp(t,n)}}},h={map:{test:function test(e){return"Map"===Typeson.toStringTag(e)},replace:function replace(e){return Array.from(e.entries())},revive:function revive(e){return new Map(e)}}},b={set:{test:function test(e){return"Set"===Typeson.toStringTag(e)},replace:function replace(e){return Array.from(e.values())},revive:function revive(e){return new Set(e)}}},g="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",m=new Uint8Array(256),T=0;T<g.length;T++)m[g.charCodeAt(T)]=T;var O=function encode(e,t,n){for(var r=new Uint8Array(e,t,n),i=r.length,o="",s=0;s<i;s+=3)o+=g[r[s]>>2],o+=g[(3&r[s])<<4|r[s+1]>>4],o+=g[(15&r[s+1])<<2|r[s+2]>>6],o+=g[63&r[s+2]];return i%3==2?o=o.substring(0,o.length-1)+"=":i%3==1&&(o=o.substring(0,o.length-2)+"=="),o},w=function decode(e){var t=e.length,n=.75*e.length,r=0,i=void 0,o=void 0,s=void 0,a=void 0;"="===e[e.length-1]&&(n--,"="===e[e.length-2]&&n--);for(var c=new ArrayBuffer(n),u=new Uint8Array(c),f=0;f<t;f+=4)i=m[e.charCodeAt(f)],o=m[e.charCodeAt(f+1)],s=m[e.charCodeAt(f+2)],a=m[e.charCodeAt(f+3)],u[r++]=i<<2|o>>4,u[r++]=(15&o)<<4|s>>2,u[r++]=(3&s)<<6|63&a;return c},S={arraybuffer:{test:function test(e){return"ArrayBuffer"===Typeson.toStringTag(e)},replace:function replace(e,t){t.buffers||(t.buffers=[]);var n=t.buffers.indexOf(e);return n>-1?{index:n}:(t.buffers.push(e),O(e))},revive:function revive(t,n){if(n.buffers||(n.buffers=[]),"object"===(void 0===t?"undefined":e(t)))return n.buffers[t.index];var r=w(t);return n.buffers.push(r),r}}},P="undefined"==typeof self?global:self,j={};["Int8Array","Uint8Array","Uint8ClampedArray","Int16Array","Uint16Array","Int32Array","Uint32Array","Float32Array","Float64Array"].forEach(function(e){var t=e,n=P[t];n&&(j[e.toLowerCase()]={test:function test(e){return Typeson.toStringTag(e)===t},replace:function replace(e,t){var n=e.buffer,r=e.byteOffset,i=e.length;t.buffers||(t.buffers=[]);var o=t.buffers.indexOf(n);return o>-1?{index:o,byteOffset:r,length:i}:(t.buffers.push(n),{encoded:O(n),byteOffset:r,length:i})},revive:function revive(e,t){t.buffers||(t.buffers=[]);var r=e.byteOffset,i=e.length,o=e.encoded,s=e.index,a=void 0;return"index"in e?a=t.buffers[s]:(a=w(o),t.buffers.push(a)),new n(a,r,i)}})});var A={dataview:{test:function test(e){return"DataView"===Typeson.toStringTag(e)},replace:function replace(e,t){var n=e.buffer,r=e.byteOffset,i=e.byteLength;t.buffers||(t.buffers=[]);var o=t.buffers.indexOf(n);return o>-1?{index:o,byteOffset:r,byteLength:i}:(t.buffers.push(n),{encoded:O(n),byteOffset:r,byteLength:i})},revive:function revive(e,t){t.buffers||(t.buffers=[]);var n=e.byteOffset,r=e.byteLength,i=e.encoded,o=e.index,s=void 0;return"index"in e?s=t.buffers[o]:(s=w(i),t.buffers.push(s)),new DataView(s,n,r)}}},C={IntlCollator:{test:function test(e){return Typeson.hasConstructorOf(e,Intl.Collator)},replace:function replace(e){return e.resolvedOptions()},revive:function revive(e){return new Intl.Collator(e.locale,e)}},IntlDateTimeFormat:{test:function test(e){return Typeson.hasConstructorOf(e,Intl.DateTimeFormat)},replace:function replace(e){return e.resolvedOptions()},revive:function revive(e){return new Intl.DateTimeFormat(e.locale,e)}},IntlNumberFormat:{test:function test(e){return Typeson.hasConstructorOf(e,Intl.NumberFormat)},replace:function replace(e){return e.resolvedOptions()},revive:function revive(e){return new Intl.NumberFormat(e.locale,e)}}},N={file:{test:function test(e){return"File"===Typeson.toStringTag(e)},replace:function replace(e){var t=new XMLHttpRequest;if(t.open("GET",URL.createObjectURL(e),!1),200!==t.status&&0!==t.status)throw new Error("Bad Blob access: "+t.status);return t.send(),{type:e.type,stringContents:t.responseText,name:e.name,lastModified:e.lastModified}},revive:function revive(e){var t=e.name,n=e.type,r=e.stringContents,i=e.lastModified;return new File([r],t,{type:n,lastModified:i})},replaceAsync:function replaceAsync(e){return new Typeson.Promise(function(t,n){if(e.isClosed)n(new Error("The File is closed"));else{var r=new FileReader;r.addEventListener("load",function(){t({type:e.type,stringContents:r.result,name:e.name,lastModified:e.lastModified})}),r.addEventListener("error",function(){n(r.error)}),r.readAsText(e)}})}}};return[f,p,l,y,v,d,{imagedata:{test:function test(e){return"ImageData"===Typeson.toStringTag(e)},replace:function replace(e){return{array:Array.from(e.data),width:e.width,height:e.height}},revive:function revive(e){return new ImageData(new Uint8ClampedArray(e.array),e.width,e.height)}}},{imagebitmap:{test:function test(e){return"ImageBitmap"===Typeson.toStringTag(e)||e&&e.dataset&&"ImageBitmap"===e.dataset.toStringTag},replace:function replace(e){var t=document.createElement("canvas");return t.getContext("2d").drawImage(e,0,0),t.toDataURL()},revive:function revive(e){var t=document.createElement("canvas"),n=t.getContext("2d"),r=document.createElement("img");return r.onload=function(){n.drawImage(r,0,0)},r.src=e,t},reviveAsync:function reviveAsync(e){var t=document.createElement("canvas"),n=t.getContext("2d"),r=document.createElement("img");return r.onload=function(){n.drawImage(r,0,0)},r.src=e,createImageBitmap(t)}}},N,{file:N.file,filelist:{test:function test(e){return"FileList"===Typeson.toStringTag(e)},replace:function replace(e){for(var t=[],n=0;n<e.length;n++)t[n]=e.item(n);return t},revive:function revive(e){function FileList(){this._files=arguments[0],this.length=this._files.length}return FileList.prototype.item=function(e){return this._files[e]},FileList.prototype[Symbol.toStringTag]="FileList",new FileList(e)}}},{blob:{test:function test(e){return"Blob"===Typeson.toStringTag(e)},replace:function replace(e){var t=new XMLHttpRequest;if(t.open("GET",URL.createObjectURL(e),!1),200!==t.status&&0!==t.status)throw new Error("Bad Blob access: "+t.status);return t.send(),{type:e.type,stringContents:t.responseText}},revive:function revive(e){var t=e.type,n=e.stringContents;return new Blob([n],{type:t})},replaceAsync:function replaceAsync(e){return new Typeson.Promise(function(t,n){if(e.isClosed)n(new Error("The Blob is closed"));else{var r=new FileReader;r.addEventListener("load",function(){t({type:e.type,stringContents:r.result})}),r.addEventListener("error",function(){n(r.error)}),r.readAsText(e)}})}}}].concat("function"==typeof Map?h:[],"function"==typeof Set?b:[],"function"==typeof ArrayBuffer?S:[],"function"==typeof Uint8Array?j:[],"function"==typeof DataView?A:[],"undefined"!=typeof Intl?C:[]).concat({checkDataCloneException:[function(t){var n={}.toString.call(t).slice(8,-1);if(["symbol","function"].includes(void 0===t?"undefined":e(t))||["Arguments","Module","Error","Promise","WeakMap","WeakSet"].includes(n)||t===Object.prototype||("Blob"===n||"File"===n)&&t.isClosed||t&&"object"===(void 0===t?"undefined":e(t))&&"number"==typeof t.nodeType&&"function"==typeof t.insertBefore)throw new DOMException("The object cannot be cloned.","DataCloneError");return!1}]})});
 
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
 },{}],4:[function(require,module,exports){
-"use strict";function isThenable(e,n){return Typeson.isObject(e)&&"function"==typeof e.then&&(!n||"function"==typeof e.catch)}function toStringTag(e){return toString.call(e).slice(8,-1)}function hasConstructorOf(e,n){if(!e||"object"!==(void 0===e?"undefined":_typeof(e)))return!1;var t=getProto(e);if(!t)return!1;var r=hasOwn.call(t,"constructor")&&t.constructor;return"function"!=typeof r?null===n:"function"==typeof r&&null!==n&&fnToString.call(r)===fnToString.call(n)}function isPlainObject(e){if(!e||"Object"!==toStringTag(e))return!1;return!getProto(e)||hasConstructorOf(e,Object)}function isUserObject(e){if(!e||"Object"!==toStringTag(e))return!1;var n=getProto(e);return!n||(hasConstructorOf(e,Object)||isUserObject(n))}function isObject(e){return e&&"object"===(void 0===e?"undefined":_typeof(e))}function Typeson(e){var n=[],t=[],r={},i=this.types={},o=this.stringify=function(n,t,r,i){i=Object.assign({},e,i,{stringification:!0});var o=c(n,null,i);return isArray(o)?JSON.stringify(o[0],t,r):o.then(function(e){return JSON.stringify(e,t,r)})};this.stringifySync=function(e,n,t,r){return o(e,n,t,Object.assign({},{throwOnBadSyncType:!0},r,{sync:!0}))},this.stringifyAsync=function(e,n,t,r){return o(e,n,t,Object.assign({},{throwOnBadSyncType:!0},r,{sync:!1}))};var s=this.parse=function(n,t,r){return r=Object.assign({},e,r,{parse:!0}),a(JSON.parse(n,t),r)};this.parseSync=function(e,n,t){return s(e,n,Object.assign({},{throwOnBadSyncType:!0},t,{sync:!0}))},this.parseAsync=function(e,n,t){return s(e,n,Object.assign({},{throwOnBadSyncType:!0},t,{sync:!1}))},this.specialTypeNames=function(e,n){var t=arguments.length>2&&void 0!==arguments[2]?arguments[2]:{};return t.returnTypeNames=!0,this.encapsulate(e,n,t)},this.rootTypeName=function(e,n){var t=arguments.length>2&&void 0!==arguments[2]?arguments[2]:{};return t.iterateNone=!0,this.encapsulate(e,n,t)};var c=this.encapsulate=function(i,o,s){function finish(e){var n=Object.values(a);if(s.iterateNone)return n.length?n[0]:Typeson.getJSONType(e);if(n.length){if(s.returnTypeNames)return[].concat(toConsumableArray(new Set(n)));e&&isPlainObject(e)&&!e.hasOwnProperty("$types")?e.$types=a:e={$:e,$types:{$:a}}}else isObject(e)&&e.hasOwnProperty("$types")&&(e={$:e,$types:!0});return!s.returnTypeNames&&e}function checkPromises(e,n){return Promise.all(n.map(function(e){return e[1].p})).then(function(t){return Promise.all(t.map(function(t){var r=[],i=n.splice(0,1)[0],o=slicedToArray(i,7),s=o[0],c=o[2],a=o[3],u=o[4],y=o[5],p=o[6],f=_encapsulate(s,t,c,a,r,!0,p),l=hasConstructorOf(f,TypesonPromise);return s&&l?f.p.then(function(n){return u[y]=n,checkPromises(e,r)}):(s?u[y]=f:e=l?f.p:f,checkPromises(e,r))}))}).then(function(){return e})}function _encapsulate(e,t,r,i,o,c,p){var f=void 0,h={},v=void 0===t?"undefined":_typeof(t),d=l?function(n){var s=p||i.type||Typeson.getJSONType(t);l(Object.assign(n||h,{keypath:e,value:t,cyclic:r,stateObj:i,promisesData:o,resolvingTypesonPromise:c,awaitingTypesonPromise:hasConstructorOf(t,TypesonPromise)},void 0!==s?{type:s}:{}))}:null;if(v in{string:1,boolean:1,number:1,undefined:1})return void 0===t||"number"===v&&(isNaN(t)||t===-1/0||t===1/0)?(f=replace(e,t,i,o,!1,c,d))!==t&&(h={replaced:f}):f=t,d&&d(),f;if(null===t)return d&&d(),t;if(r&&!i.iterateIn&&!i.iterateUnsetNumeric){var b=u.indexOf(t);if(!(b<0))return a[e]="#",d&&d({cyclicKeypath:y[b]}),"#"+y[b];!0===r&&(u.push(t),y.push(e))}var O=isPlainObject(t),m=isArray(t),T=(O||m)&&(!n.length||i.replaced)||i.iterateIn?t:replace(e,t,i,o,O||m,null,d),g=void 0;if(T!==t?(f=T,h={replaced:T}):m||"array"===i.iterateIn?(g=new Array(t.length),h={clone:g}):O||"object"===i.iterateIn?h={clone:g={}}:""===e&&hasConstructorOf(t,TypesonPromise)?(o.push([e,t,r,i,void 0,void 0,i.type]),f=t):f=t,d&&d(),s.iterateNone)return g||f;if(!g)return f;if(i.iterateIn){for(var P in t){var j={ownKeys:t.hasOwnProperty(P)},w=e+(e?".":"")+escapeKeyPathComponent(P),S=_encapsulate(w,t[P],!!r,j,o,c);hasConstructorOf(S,TypesonPromise)?o.push([w,S,!!r,j,g,P,j.type]):void 0!==S&&(g[P]=S)}d&&d({endIterateIn:!0,end:!0})}else keys(t).forEach(function(n){var i=e+(e?".":"")+escapeKeyPathComponent(n),s={ownKeys:!0},a=_encapsulate(i,t[n],!!r,s,o,c);hasConstructorOf(a,TypesonPromise)?o.push([i,a,!!r,s,g,n,s.type]):void 0!==a&&(g[n]=a)}),d&&d({endIterateOwn:!0,end:!0});if(i.iterateUnsetNumeric){for(var A=t.length,C=0;C<A;C++)if(!(C in t)){var N=e+(e?".":"")+C,K={ownKeys:!1},B=_encapsulate(N,void 0,!!r,K,o,c);hasConstructorOf(B,TypesonPromise)?o.push([N,B,!!r,K,g,C,K.type]):void 0!==B&&(g[C]=B)}d&&d({endIterateUnsetNumeric:!0,end:!0})}return g}function replace(e,i,o,s,u,y,p){for(var l=u?n:t,h=l.length;h--;){var v=l[h];if(v.test(i,o)){var d=v.type;if(r[d]){var b=a[e];a[e]=b?[d].concat(b):d}if(o=Object.assign(o,{type:d,replaced:!0}),(c||!v.replaceAsync)&&!v.replace)return p&&p({typeDetected:!0}),_encapsulate(e,i,f&&"readonly",o,s,y,d);p&&p({replacing:!0});return _encapsulate(e,v[c||!v.replaceAsync?"replace":"replaceAsync"](i,o),f&&"readonly",o,s,y,d)}}return i}var c=(s=Object.assign({sync:!0},e,s)).sync,a={},u=[],y=[],p=[],f=!(s&&"cyclic"in s)||s.cyclic,l=s.encapsulateObserver,h=_encapsulate("",i,f,o||{},p);return p.length?c&&s.throwOnBadSyncType?function(){throw new TypeError("Sync method requested but async result obtained")}():Promise.resolve(checkPromises(h,p)).then(finish):!c&&s.throwOnBadSyncType?function(){throw new TypeError("Async method requested but sync result obtained")}():s.stringification&&c?[finish(h)]:c?finish(h):Promise.resolve(finish(h))};this.encapsulateSync=function(e,n,t){return c(e,n,Object.assign({},{throwOnBadSyncType:!0},t,{sync:!0}))},this.encapsulateAsync=function(e,n,t){return c(e,n,Object.assign({},{throwOnBadSyncType:!0},t,{sync:!1}))};var a=this.revive=function(n,t){function _revive(e,n,t,i,a,u){if(!s||"$types"!==e){var y=o[e];if(isArray(n)||isPlainObject(n)){var p=isArray(n)?new Array(n.length):{};for(keys(n).forEach(function(r){var o=_revive(e+(e?".":"")+escapeKeyPathComponent(r),n[r],t||p,i,p,r);hasConstructorOf(o,Undefined)?p[r]=void 0:void 0!==o&&(p[r]=o)}),n=p;c.length;){var f=slicedToArray(c[0],4),l=f[0],h=f[1],v=f[2],d=f[3],b=getByKeyPath(l,h);if(hasConstructorOf(b,Undefined))v[d]=void 0;else{if(void 0===b)break;v[d]=b}c.splice(0,1)}}if(!y)return n;if("#"===y){var O=getByKeyPath(t,n.substr(1));return void 0===O&&c.push([t,n.substr(1),a,u]),O}var m=i.sync;return[].concat(y).reduce(function(e,n){var t=r[n];if(!t)throw new Error("Unregistered type: "+n);return t[m&&t.revive?"revive":!m&&t.reviveAsync?"reviveAsync":"revive"](e)},n)}}var i=(t=Object.assign({sync:!0},e,t)).sync,o=n&&n.$types,s=!0;if(!o)return n;if(!0===o)return n.$;o.$&&isPlainObject(o.$)&&(n=n.$,o=o.$,s=!1);var c=[],a=_revive("",n,null,t);return a=hasConstructorOf(a,Undefined)?void 0:a,isThenable(a)?i&&t.throwOnBadSyncType?function(){throw new TypeError("Sync method requested but async result obtained")}():a:!i&&t.throwOnBadSyncType?function(){throw new TypeError("Async method requested but sync result obtained")}():i?a:Promise.resolve(a)};this.reviveSync=function(e,n){return a(e,Object.assign({},{throwOnBadSyncType:!0},n,{sync:!0}))},this.reviveAsync=function(e,n){return a(e,Object.assign({},{throwOnBadSyncType:!0},n,{sync:!1}))},this.register=function(e,o){return o=o||{},[].concat(e).forEach(function R(e){if(isArray(e))return e.map(R);e&&keys(e).forEach(function(s){if("#"===s)throw new TypeError("# cannot be used as a type name as it is reserved for cyclic objects");if(Typeson.JSON_TYPES.includes(s))throw new TypeError("Plain JSON object types are reserved as type names");var c=e[s],a=c.testPlainObjects?n:t,u=a.filter(function(e){return e.type===s});if(u.length&&(a.splice(a.indexOf(u[0]),1),delete r[s],delete i[s]),c){if("function"==typeof c){var y=c;c={test:function test(e){return e&&e.constructor===y},replace:function replace(e){return assign({},e)},revive:function revive(e){return assign(Object.create(y.prototype),e)}}}else isArray(c)&&(c={test:c[0],replace:c[1],revive:c[2]});var p={type:s,test:c.test.bind(c)};c.replace&&(p.replace=c.replace.bind(c)),c.replaceAsync&&(p.replaceAsync=c.replaceAsync.bind(c));var f="number"==typeof o.fallback?o.fallback:o.fallback?0:1/0;if(c.testPlainObjects?n.splice(f,0,p):t.splice(f,0,p),c.revive||c.reviveAsync){var l={};c.revive&&(l.revive=c.revive.bind(c)),c.reviveAsync&&(l.reviveAsync=c.reviveAsync.bind(c)),r[s]=l}i[s]=c}})}),this}}function assign(e,n){return keys(n).map(function(t){e[t]=n[t]}),e}function escapeKeyPathComponent(e){return e.replace(/~/g,"~0").replace(/\./g,"~1")}function unescapeKeyPathComponent(e){return e.replace(/~1/g,".").replace(/~0/g,"~")}function getByKeyPath(e,n){if(""===n)return e;var t=n.indexOf(".");if(t>-1){var r=e[unescapeKeyPathComponent(n.substr(0,t))];return void 0===r?void 0:getByKeyPath(r,n.substr(t+1))}return e[unescapeKeyPathComponent(n)]}function Undefined(){}function TypesonPromise(e){this.p=new Promise(e)}var _typeof="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e},slicedToArray=function(){return function(e,n){if(Array.isArray(e))return e;if(Symbol.iterator in Object(e))return function sliceIterator(e,n){var t=[],r=!0,i=!1,o=void 0;try{for(var s,c=e[Symbol.iterator]();!(r=(s=c.next()).done)&&(t.push(s.value),!n||t.length!==n);r=!0);}catch(e){i=!0,o=e}finally{try{!r&&c.return&&c.return()}finally{if(i)throw o}}return t}(e,n);throw new TypeError("Invalid attempt to destructure non-iterable instance")}}(),toConsumableArray=function(e){if(Array.isArray(e)){for(var n=0,t=Array(e.length);n<e.length;n++)t[n]=e[n];return t}return Array.from(e)},keys=Object.keys,isArray=Array.isArray,toString={}.toString,getProto=Object.getPrototypeOf,hasOwn={}.hasOwnProperty,fnToString=hasOwn.toString;TypesonPromise.prototype.then=function(e,n){var t=this;return new TypesonPromise(function(r,i){t.p.then(function(n){r(e?e(n):n)},function(e){t.p.catch(function(e){return n?n(e):Promise.reject(e)}).then(r,i)})})},TypesonPromise.prototype.catch=function(e){return this.then(null,e)},TypesonPromise.resolve=function(e){return new TypesonPromise(function(n){n(e)})},TypesonPromise.reject=function(e){return new TypesonPromise(function(n,t){t(e)})},["all","race"].map(function(e){TypesonPromise[e]=function(n){return new TypesonPromise(function(t,r){Promise[e](n.map(function(e){return e.p})).then(t,r)})}}),Typeson.Undefined=Undefined,Typeson.Promise=TypesonPromise,Typeson.isThenable=isThenable,Typeson.toStringTag=toStringTag,Typeson.hasConstructorOf=hasConstructorOf,Typeson.isObject=isObject,Typeson.isPlainObject=isPlainObject,Typeson.isUserObject=isUserObject,Typeson.escapeKeyPathComponent=escapeKeyPathComponent,Typeson.unescapeKeyPathComponent=unescapeKeyPathComponent,Typeson.getByKeyPath=getByKeyPath,Typeson.getJSONType=function(e){return null===e?"null":isArray(e)?"array":void 0===e?"undefined":_typeof(e)},Typeson.JSON_TYPES=["null","boolean","number","string","array","object"],module.exports=Typeson;
+"use strict";var _typeof="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e},slicedToArray=function(){return function(e,n){if(Array.isArray(e))return e;if(Symbol.iterator in Object(e))return function sliceIterator(e,n){var t=[],r=!0,i=!1,o=void 0;try{for(var s,a=e[Symbol.iterator]();!(r=(s=a.next()).done)&&(t.push(s.value),!n||t.length!==n);r=!0);}catch(e){i=!0,o=e}finally{try{!r&&a.return&&a.return()}finally{if(i)throw o}}return t}(e,n);throw new TypeError("Invalid attempt to destructure non-iterable instance")}}(),toConsumableArray=function(e){if(Array.isArray(e)){for(var n=0,t=Array(e.length);n<e.length;n++)t[n]=e[n];return t}return Array.from(e)},keys=Object.keys,isArray=Array.isArray,toString={}.toString,getProto=Object.getPrototypeOf,hasOwn={}.hasOwnProperty,fnToString=hasOwn.toString,internalStateObjPropsToIgnore=["type","replaced","iterateIn","iterateUnsetNumeric"];function isThenable(e,n){return Typeson.isObject(e)&&"function"==typeof e.then&&(!n||"function"==typeof e.catch)}function toStringTag(e){return toString.call(e).slice(8,-1)}function hasConstructorOf(e,n){if(!e||"object"!==(void 0===e?"undefined":_typeof(e)))return!1;var t=getProto(e);if(!t)return!1;var r=hasOwn.call(t,"constructor")&&t.constructor;return"function"!=typeof r?null===n:"function"==typeof r&&null!==n&&fnToString.call(r)===fnToString.call(n)}function isPlainObject(e){return!(!e||"Object"!==toStringTag(e))&&(!getProto(e)||hasConstructorOf(e,Object))}function isUserObject(e){if(!e||"Object"!==toStringTag(e))return!1;var n=getProto(e);return!n||(hasConstructorOf(e,Object)||isUserObject(n))}function isObject(e){return e&&"object"===(void 0===e?"undefined":_typeof(e))}function Typeson(e){var n=[],t=[],r={},i=this.types={},o=this.stringify=function(n,t,r,i){i=Object.assign({},e,i,{stringification:!0});var o=a(n,null,i);return isArray(o)?JSON.stringify(o[0],t,r):o.then(function(e){return JSON.stringify(e,t,r)})};this.stringifySync=function(e,n,t,r){return o(e,n,t,Object.assign({},{throwOnBadSyncType:!0},r,{sync:!0}))},this.stringifyAsync=function(e,n,t,r){return o(e,n,t,Object.assign({},{throwOnBadSyncType:!0},r,{sync:!1}))};var s=this.parse=function(n,t,r){return r=Object.assign({},e,r,{parse:!0}),c(JSON.parse(n,t),r)};this.parseSync=function(e,n,t){return s(e,n,Object.assign({},{throwOnBadSyncType:!0},t,{sync:!0}))},this.parseAsync=function(e,n,t){return s(e,n,Object.assign({},{throwOnBadSyncType:!0},t,{sync:!1}))},this.specialTypeNames=function(e,n){var t=arguments.length>2&&void 0!==arguments[2]?arguments[2]:{};return t.returnTypeNames=!0,this.encapsulate(e,n,t)},this.rootTypeName=function(e,n){var t=arguments.length>2&&void 0!==arguments[2]?arguments[2]:{};return t.iterateNone=!0,this.encapsulate(e,n,t)};var a=this.encapsulate=function(i,o,s){var a=(s=Object.assign({sync:!0},e,s)).sync,c={},u=[],y=[],p=[],f=!(s&&"cyclic"in s)||s.cyclic,l=s.encapsulateObserver,h=_encapsulate("",i,f,o||{},p);function finish(e){var n=Object.values(c);if(s.iterateNone)return n.length?n[0]:Typeson.getJSONType(e);if(n.length){if(s.returnTypeNames)return[].concat(toConsumableArray(new Set(n)));e&&isPlainObject(e)&&!e.hasOwnProperty("$types")?e.$types=c:e={$:e,$types:{$:c}}}else isObject(e)&&e.hasOwnProperty("$types")&&(e={$:e,$types:!0});return!s.returnTypeNames&&e}return p.length?a&&s.throwOnBadSyncType?function(){throw new TypeError("Sync method requested but async result obtained")}():Promise.resolve(function checkPromises(e,n){return Promise.all(n.map(function(e){return e[1].p})).then(function(t){return Promise.all(t.map(function(t){var r=[],i=n.splice(0,1)[0],o=slicedToArray(i,7),s=o[0],a=o[2],c=o[3],u=o[4],y=o[5],p=o[6],f=_encapsulate(s,t,a,c,r,!0,p),l=hasConstructorOf(f,TypesonPromise);return s&&l?f.p.then(function(n){return u[y]=n,checkPromises(e,r)}):(s?u[y]=f:e=l?f.p:f,checkPromises(e,r))}))}).then(function(){return e})}(h,p)).then(finish):!a&&s.throwOnBadSyncType?function(){throw new TypeError("Async method requested but sync result obtained")}():s.stringification&&a?[finish(h)]:a?finish(h):Promise.resolve(finish(h));function _adaptBuiltinStateObjectProperties(e,n,t){Object.assign(e,n);var r=internalStateObjPropsToIgnore.map(function(n){var t=e[n];return delete e[n],t});t(),internalStateObjPropsToIgnore.forEach(function(n,t){e[n]=r[t]})}function _encapsulate(e,t,r,i,o,a,p){var f=void 0,h={},v=void 0===t?"undefined":_typeof(t),d=l?function(n){var s=p||i.type||Typeson.getJSONType(t);l(Object.assign(n||h,{keypath:e,value:t,cyclic:r,stateObj:i,promisesData:o,resolvingTypesonPromise:a,awaitingTypesonPromise:hasConstructorOf(t,TypesonPromise)},void 0!==s?{type:s}:{}))}:null;if(v in{string:1,boolean:1,number:1,undefined:1})return void 0===t||"number"===v&&(isNaN(t)||t===-1/0||t===1/0)?(f=replace(e,t,i,o,!1,a,d))!==t&&(h={replaced:f}):f=t,d&&d(),f;if(null===t)return d&&d(),t;if(r&&!i.iterateIn&&!i.iterateUnsetNumeric){var b=u.indexOf(t);if(!(b<0))return c[e]="#",d&&d({cyclicKeypath:y[b]}),"#"+y[b];!0===r&&(u.push(t),y.push(e))}var O=isPlainObject(t),g=isArray(t),T=(O||g)&&(!n.length||i.replaced)||i.iterateIn?t:replace(e,t,i,o,O||g,null,d),m=void 0;if(T!==t?(f=T,h={replaced:T}):g||"array"===i.iterateIn?(m=new Array(t.length),h={clone:m}):O||"object"===i.iterateIn?h={clone:m={}}:""===e&&hasConstructorOf(t,TypesonPromise)?(o.push([e,t,r,i,void 0,void 0,i.type]),f=t):f=t,d&&d(),s.iterateNone)return m||f;if(!m)return f;if(i.iterateIn){var P=function _loop(n){var s={ownKeys:t.hasOwnProperty(n)};_adaptBuiltinStateObjectProperties(i,s,function(){var s=e+(e?".":"")+escapeKeyPathComponent(n),c=_encapsulate(s,t[n],!!r,i,o,a);hasConstructorOf(c,TypesonPromise)?o.push([s,c,!!r,i,m,n,i.type]):void 0!==c&&(m[n]=c)})};for(var j in t)P(j);d&&d({endIterateIn:!0,end:!0})}else keys(t).forEach(function(n){var s=e+(e?".":"")+escapeKeyPathComponent(n);_adaptBuiltinStateObjectProperties(i,{ownKeys:!0},function(){var e=_encapsulate(s,t[n],!!r,i,o,a);hasConstructorOf(e,TypesonPromise)?o.push([s,e,!!r,i,m,n,i.type]):void 0!==e&&(m[n]=e)})}),d&&d({endIterateOwn:!0,end:!0});if(i.iterateUnsetNumeric){for(var S=t.length,w=function _loop2(n){if(!(n in t)){var s=e+(e?".":"")+n;_adaptBuiltinStateObjectProperties(i,{ownKeys:!1},function(){var e=_encapsulate(s,void 0,!!r,i,o,a);hasConstructorOf(e,TypesonPromise)?o.push([s,e,!!r,i,m,n,i.type]):void 0!==e&&(m[n]=e)})}},A=0;A<S;A++)w(A);d&&d({endIterateUnsetNumeric:!0,end:!0})}return m}function replace(e,i,o,s,u,y,p){for(var l=u?n:t,h=l.length;h--;){var v=l[h];if(v.test(i,o)){var d=v.type;if(r[d]){var b=c[e];c[e]=b?[d].concat(b):d}return Object.assign(o,{type:d,replaced:!0}),!a&&v.replaceAsync||v.replace?(p&&p({replacing:!0}),_encapsulate(e,v[a||!v.replaceAsync?"replace":"replaceAsync"](i,o),f&&"readonly",o,s,y,d)):(p&&p({typeDetected:!0}),_encapsulate(e,i,f&&"readonly",o,s,y,d))}}return i}};this.encapsulateSync=function(e,n,t){return a(e,n,Object.assign({},{throwOnBadSyncType:!0},t,{sync:!0}))},this.encapsulateAsync=function(e,n,t){return a(e,n,Object.assign({},{throwOnBadSyncType:!0},t,{sync:!1}))};var c=this.revive=function(n,t){var i=(t=Object.assign({sync:!0},e,t)).sync,o=n&&n.$types,s=!0;if(!o)return n;if(!0===o)return n.$;o.$&&isPlainObject(o.$)&&(n=n.$,o=o.$,s=!1);var a=[],c={},u=function _revive(e,n,t,i,u,y){if(s&&"$types"===e)return;var p=o[e];if(isArray(n)||isPlainObject(n)){var f=isArray(n)?new Array(n.length):{};for(keys(n).forEach(function(r){var o=_revive(e+(e?".":"")+escapeKeyPathComponent(r),n[r],t||f,i,f,r);hasConstructorOf(o,Undefined)?f[r]=void 0:void 0!==o&&(f[r]=o)}),n=f;a.length;){var l=slicedToArray(a[0],4),h=l[0],v=l[1],d=l[2],b=l[3],O=getByKeyPath(h,v);if(hasConstructorOf(O,Undefined))d[b]=void 0;else{if(void 0===O)break;d[b]=O}a.splice(0,1)}}if(!p)return n;if("#"===p){var g=getByKeyPath(t,n.substr(1));return void 0===g&&a.push([t,n.substr(1),u,y]),g}var T=i.sync;return[].concat(p).reduce(function(e,n){var t=r[n];if(!t)throw new Error("Unregistered type: "+n);return t[T&&t.revive?"revive":!T&&t.reviveAsync?"reviveAsync":"revive"](e,c)},n)}("",n,null,t);return isThenable(u=hasConstructorOf(u,Undefined)?void 0:u)?i&&t.throwOnBadSyncType?function(){throw new TypeError("Sync method requested but async result obtained")}():u:!i&&t.throwOnBadSyncType?function(){throw new TypeError("Async method requested but sync result obtained")}():i?u:Promise.resolve(u)};this.reviveSync=function(e,n){return c(e,Object.assign({},{throwOnBadSyncType:!0},n,{sync:!0}))},this.reviveAsync=function(e,n){return c(e,Object.assign({},{throwOnBadSyncType:!0},n,{sync:!1}))},this.register=function(e,o){return o=o||{},[].concat(e).forEach(function R(e){if(isArray(e))return e.map(R);e&&keys(e).forEach(function(s){if("#"===s)throw new TypeError("# cannot be used as a type name as it is reserved for cyclic objects");if(Typeson.JSON_TYPES.includes(s))throw new TypeError("Plain JSON object types are reserved as type names");var a=e[s],c=a.testPlainObjects?n:t,u=c.filter(function(e){return e.type===s});if(u.length&&(c.splice(c.indexOf(u[0]),1),delete r[s],delete i[s]),a){if("function"==typeof a){var y=a;a={test:function test(e){return e&&e.constructor===y},replace:function replace(e){return assign({},e)},revive:function revive(e){return assign(Object.create(y.prototype),e)}}}else isArray(a)&&(a={test:a[0],replace:a[1],revive:a[2]});var p={type:s,test:a.test.bind(a)};a.replace&&(p.replace=a.replace.bind(a)),a.replaceAsync&&(p.replaceAsync=a.replaceAsync.bind(a));var f="number"==typeof o.fallback?o.fallback:o.fallback?0:1/0;if(a.testPlainObjects?n.splice(f,0,p):t.splice(f,0,p),a.revive||a.reviveAsync){var l={};a.revive&&(l.revive=a.revive.bind(a)),a.reviveAsync&&(l.reviveAsync=a.reviveAsync.bind(a)),r[s]=l}i[s]=a}})}),this}}function assign(e,n){return keys(n).map(function(t){e[t]=n[t]}),e}function escapeKeyPathComponent(e){return e.replace(/~/g,"~0").replace(/\./g,"~1")}function unescapeKeyPathComponent(e){return e.replace(/~1/g,".").replace(/~0/g,"~")}function getByKeyPath(e,n){if(""===n)return e;var t=n.indexOf(".");if(t>-1){var r=e[unescapeKeyPathComponent(n.substr(0,t))];return void 0===r?void 0:getByKeyPath(r,n.substr(t+1))}return e[unescapeKeyPathComponent(n)]}function Undefined(){}function TypesonPromise(e){this.p=new Promise(e)}TypesonPromise.prototype.then=function(e,n){var t=this;return new TypesonPromise(function(r,i){t.p.then(function(n){r(e?e(n):n)},function(e){t.p.catch(function(e){return n?n(e):Promise.reject(e)}).then(r,i)})})},TypesonPromise.prototype.catch=function(e){return this.then(null,e)},TypesonPromise.resolve=function(e){return new TypesonPromise(function(n){n(e)})},TypesonPromise.reject=function(e){return new TypesonPromise(function(n,t){t(e)})},["all","race"].map(function(e){TypesonPromise[e]=function(n){return new TypesonPromise(function(t,r){Promise[e](n.map(function(e){return e.p})).then(t,r)})}}),Typeson.Undefined=Undefined,Typeson.Promise=TypesonPromise,Typeson.isThenable=isThenable,Typeson.toStringTag=toStringTag,Typeson.hasConstructorOf=hasConstructorOf,Typeson.isObject=isObject,Typeson.isPlainObject=isPlainObject,Typeson.isUserObject=isUserObject,Typeson.escapeKeyPathComponent=escapeKeyPathComponent,Typeson.unescapeKeyPathComponent=unescapeKeyPathComponent,Typeson.getByKeyPath=getByKeyPath,Typeson.getJSONType=function(e){return null===e?"null":isArray(e)?"array":void 0===e?"undefined":_typeof(e)},Typeson.JSON_TYPES=["null","boolean","number","string","array","object"],module.exports=Typeson;
 
 },{}],5:[function(require,module,exports){
 module.exports=/[\xC0-\xC5\xC7-\xCF\xD1-\xD6\xD9-\xDD\xE0-\xE5\xE7-\xEF\xF1-\xF6\xF9-\xFD\xFF-\u010F\u0112-\u0125\u0128-\u0130\u0134-\u0137\u0139-\u013E\u0143-\u0148\u014C-\u0151\u0154-\u0165\u0168-\u017E\u01A0\u01A1\u01AF\u01B0\u01CD-\u01DC\u01DE-\u01E3\u01E6-\u01F0\u01F4\u01F5\u01F8-\u021B\u021E\u021F\u0226-\u0233\u0344\u0385\u0386\u0388-\u038A\u038C\u038E-\u0390\u03AA-\u03B0\u03CA-\u03CE\u03D3\u03D4\u0400\u0401\u0403\u0407\u040C-\u040E\u0419\u0439\u0450\u0451\u0453\u0457\u045C-\u045E\u0476\u0477\u04C1\u04C2\u04D0-\u04D3\u04D6\u04D7\u04DA-\u04DF\u04E2-\u04E7\u04EA-\u04F5\u04F8\u04F9\u0622-\u0626\u06C0\u06C2\u06D3\u0929\u0931\u0934\u0958-\u095F\u09CB\u09CC\u09DC\u09DD\u09DF\u0A33\u0A36\u0A59-\u0A5B\u0A5E\u0B48\u0B4B\u0B4C\u0B5C\u0B5D\u0B94\u0BCA-\u0BCC\u0C48\u0CC0\u0CC7\u0CC8\u0CCA\u0CCB\u0D4A-\u0D4C\u0DDA\u0DDC-\u0DDE\u0F43\u0F4D\u0F52\u0F57\u0F5C\u0F69\u0F73\u0F75\u0F76\u0F78\u0F81\u0F93\u0F9D\u0FA2\u0FA7\u0FAC\u0FB9\u1026\u1B06\u1B08\u1B0A\u1B0C\u1B0E\u1B12\u1B3B\u1B3D\u1B40\u1B41\u1B43\u1E00-\u1E99\u1E9B\u1EA0-\u1EF9\u1F00-\u1F15\u1F18-\u1F1D\u1F20-\u1F45\u1F48-\u1F4D\u1F50-\u1F57\u1F59\u1F5B\u1F5D\u1F5F-\u1F7D\u1F80-\u1FB4\u1FB6-\u1FBC\u1FC1-\u1FC4\u1FC6-\u1FD3\u1FD6-\u1FDB\u1FDD-\u1FEE\u1FF2-\u1FF4\u1FF6-\u1FFC\u212B\u219A\u219B\u21AE\u21CD-\u21CF\u2204\u2209\u220C\u2224\u2226\u2241\u2244\u2247\u2249\u2260\u2262\u226D-\u2271\u2274\u2275\u2278\u2279\u2280\u2281\u2284\u2285\u2288\u2289\u22AC-\u22AF\u22E0-\u22E3\u22EA-\u22ED\u2ADC\u304C\u304E\u3050\u3052\u3054\u3056\u3058\u305A\u305C\u305E\u3060\u3062\u3065\u3067\u3069\u3070\u3071\u3073\u3074\u3076\u3077\u3079\u307A\u307C\u307D\u3094\u309E\u30AC\u30AE\u30B0\u30B2\u30B4\u30B6\u30B8\u30BA\u30BC\u30BE\u30C0\u30C2\u30C5\u30C7\u30C9\u30D0\u30D1\u30D3\u30D4\u30D6\u30D7\u30D9\u30DA\u30DC\u30DD\u30F4\u30F7-\u30FA\u30FE\uAC00-\uD7A3\uFB1D\uFB1F\uFB2A-\uFB36\uFB38-\uFB3C\uFB3E\uFB40\uFB41\uFB43\uFB44\uFB46-\uFB4E]|\uD804[\uDC9A\uDC9C\uDCAB\uDD2E\uDD2F\uDF4B\uDF4C]|\uD805[\uDCBB\uDCBC\uDCBE\uDDBA\uDDBB]|\uD834[\uDD5E-\uDD64\uDDBB-\uDDC0]/
@@ -894,10 +900,10 @@ const CFG = {};
         prop = prop[0];
     }
     Object.defineProperty(CFG, prop, {
-        get: function () {
+        get() {
             return map[prop];
         },
-        set: function (val) {
+        set(val) {
             if (validator) {
                 validator(val);
             }
@@ -1035,7 +1041,7 @@ function createNonNativeDOMExceptionClass() {
     ['name', 'message'].forEach(prop => {
         Object.defineProperty(DummyDOMException.prototype, prop, {
             enumerable: true,
-            get: function () {
+            get() {
                 if (!(this instanceof DOMException || this instanceof DummyDOMException || this instanceof Error)) {
                     throw new TypeError('Illegal invocation');
                 }
@@ -1047,7 +1053,7 @@ function createNonNativeDOMExceptionClass() {
     Object.defineProperty(DummyDOMException.prototype, 'code', {
         configurable: true,
         enumerable: true,
-        get: function () {
+        get() {
             throw new TypeError('Illegal invocation');
         }
     });
@@ -1246,13 +1252,13 @@ const DOMStringList = function () {
 DOMStringList.prototype = {
     constructor: DOMStringList,
     // Interface.
-    contains: function (str) {
+    contains(str) {
         if (!arguments.length) {
             throw new TypeError('DOMStringList.contains must be supplied a value');
         }
         return this._items.includes(str);
     },
-    item: function (key) {
+    item(key) {
         if (!arguments.length) {
             throw new TypeError('DOMStringList.item must be supplied a value');
         }
@@ -1263,40 +1269,40 @@ DOMStringList.prototype = {
     },
 
     // Helpers. Should only be used internally.
-    clone: function () {
+    clone() {
         const stringList = DOMStringList.__createInstance();
         stringList._items = this._items.slice();
         stringList._length = this.length;
         stringList.addIndexes();
         return stringList;
     },
-    addIndexes: function () {
+    addIndexes() {
         for (let i = 0; i < this._items.length; i++) {
             this[i] = this._items[i];
         }
     },
-    sortList: function () {
+    sortList() {
         // http://w3c.github.io/IndexedDB/#sorted-list
         // https://tc39.github.io/ecma262/#sec-abstract-relational-comparison
         this._items.sort();
         this.addIndexes();
         return this._items;
     },
-    forEach: function (cb, thisArg) {
+    forEach(cb, thisArg) {
         this._items.forEach(cb, thisArg);
     },
-    map: function (cb, thisArg) {
+    map(cb, thisArg) {
         return this._items.map(cb, thisArg);
     },
-    indexOf: function (str) {
+    indexOf(str) {
         return this._items.indexOf(str);
     },
-    push: function (item) {
+    push(item) {
         this._items.push(item);
         this._length++;
         this.sortList();
     },
-    splice: function (...args /* index, howmany, item1, ..., itemX */) {
+    splice(...args /* index, howmany, item1, ..., itemX */) {
         this._items.splice(...args);
         this._length = this._items.length;
         for (const i in this) {
@@ -1312,7 +1318,7 @@ DOMStringList.prototype = {
     //    and particularly as some methods, e.g., `IDBDatabase.transaction`
     //    expect such sequence<DOMString> (or DOMString), we need an iterator (some of
     //    the Mocha tests rely on these)
-    [Symbol.iterator]: function* () {
+    *[Symbol.iterator]() {
         let i = 0;
         while (i < this._items.length) {
             yield this._items[i++];
@@ -1320,13 +1326,13 @@ DOMStringList.prototype = {
     }
 };
 Object.defineProperty(DOMStringList, Symbol.hasInstance, {
-    value: function (obj) {
+    value(obj) {
         return {}.toString.call(obj) === 'DOMStringListPrototype';
     }
 });
 const DOMStringListAlias = DOMStringList;
 Object.defineProperty(DOMStringList, '__createInstance', {
-    value: function () {
+    value() {
         const DOMStringList = function DOMStringList() {
             this.toString = function () {
                 return '[object DOMStringList]';
@@ -1334,7 +1340,7 @@ Object.defineProperty(DOMStringList, '__createInstance', {
             // Internal functions on the prototype have been made non-enumerable below.
             Object.defineProperty(this, 'length', {
                 enumerable: true,
-                get: function () {
+                get() {
                     return this._length;
                 }
             });
@@ -1362,7 +1368,7 @@ if (cleanInterface) {
     Object.defineProperty(DOMStringList.prototype, 'length', {
         configurable: true,
         enumerable: true,
-        get: function () {
+        get() {
             throw new TypeError('Illegal invocation');
         }
     });
@@ -1723,7 +1729,7 @@ IDBCursor.prototype.__findMultiEntry = function (key, primaryKey, tx, success, e
                 me.__prefetchedData = {
                     data: rows,
                     length: rows.length,
-                    item: function (index) {
+                    item(index) {
                         return this.data[index];
                     }
                 };
@@ -1990,7 +1996,7 @@ IDBCursor.prototype[Symbol.toStringTag] = 'IDBCursorPrototype';
     Object.defineProperty(IDBCursor.prototype, prop, {
         enumerable: true,
         configurable: true,
-        get: function () {
+        get() {
             throw new TypeError('Illegal invocation');
         }
     });
@@ -2025,7 +2031,7 @@ IDBCursorWithValue.__createInstance = function (...args) {
 Object.defineProperty(IDBCursorWithValue.prototype, 'value', {
     enumerable: true,
     configurable: true,
-    get: function () {
+    get() {
         throw new TypeError('Illegal invocation');
     }
 });
@@ -2102,10 +2108,10 @@ IDBDatabase.__createInstance = function (db, name, oldVersion, version, storePro
             Object.defineProperty(this, listener, {
                 enumerable: true,
                 configurable: true,
-                get: function () {
+                get() {
                     return this['__' + listener];
                 },
-                set: function (val) {
+                set(val) {
                     this['__' + listener] = val;
                 }
             });
@@ -2319,10 +2325,10 @@ listeners.forEach(listener => {
     Object.defineProperty(IDBDatabase.prototype, listener, {
         enumerable: true,
         configurable: true,
-        get: function () {
+        get() {
             throw new TypeError('Illegal invocation');
         },
-        set: function (val) {
+        set(val) {
             throw new TypeError('Illegal invocation');
         }
     });
@@ -2332,7 +2338,7 @@ readonlyProperties.forEach(prop => {
     Object.defineProperty(IDBDatabase.prototype, prop, {
         enumerable: true,
         configurable: true,
-        get: function () {
+        get() {
             throw new TypeError('Illegal invocation');
         }
     });
@@ -2474,7 +2480,7 @@ function triggerAnyVersionChangeAndBlockedEvents(openConnections, req, oldVersio
         if (!connectionsClosed()) {
             return new _syncPromise2.default(function (resolve) {
                 const unblocking = {
-                    check: function check() {
+                    check() {
                         if (connectionsClosed()) {
                             resolve();
                         }
@@ -2508,7 +2514,7 @@ function getLatestCachedWebSQLVersion(name) {
 
 function getLatestCachedWebSQLDB(name) {
     return websqlDBCache[name] && websqlDBCache[name][// eslint-disable-line standard/computed-property-even-spacing
-    getLatestCachedWebSQLVersion()];
+    getLatestCachedWebSQLVersion(name)];
 }
 
 function cleanupDatabaseResources(__openDatabase, name, escapedDatabaseName, databaseDeleted, dbError) {
@@ -2535,7 +2541,7 @@ function cleanupDatabaseResources(__openDatabase, name, escapedDatabaseName, dat
         return;
     }
     if (_CFG2.default.deleteDatabaseFiles !== false && {}.toString.call(process) === '[object process]') {
-        require('fs').unlink(require('path').resolve(escapedDatabaseName), err => {
+        require('fs').unlink(_path2.default.join(_CFG2.default.databaseBasePath || '', escapedDatabaseName), err => {
             if (err && err.code !== 'ENOENT') {
                 // Ignore if file is already deleted
                 dbError({ code: 0, message: 'Error removing database file: ' + escapedDatabaseName + ' ' + err });
@@ -2749,11 +2755,6 @@ IDBFactory.prototype.open = function (name /* , version */) {
                                 req.__result.__versionTransaction = null;
                                 sysdbFinishedCb(systx, false, function () {
                                     req.transaction.__transFinishedCb(false, function () {
-                                        if (useDatabaseCache) {
-                                            if (name in websqlDBCache) {
-                                                delete websqlDBCache[name][version];
-                                            }
-                                        }
                                         ev.complete();
                                         req.__transaction = null;
                                     });
@@ -2859,7 +2860,13 @@ IDBFactory.prototype.open = function (name /* , version */) {
         }
         if (oldVersion > version) {
             const err = (0, _DOMException.createDOMException)('VersionError', 'An attempt was made to open a database using a lower version than the existing version.', version);
-            dbCreateError(err);
+            if (useDatabaseCache) {
+                setTimeout(() => {
+                    dbCreateError(err);
+                });
+            } else {
+                dbCreateError(err);
+            }
             return;
         }
 
@@ -2883,11 +2890,7 @@ IDBFactory.prototype.open = function (name /* , version */) {
             if (!(name in websqlDBCache)) {
                 websqlDBCache[name] = {};
             }
-            if (version === undefined) {
-                latestCachedVersion = getLatestCachedWebSQLVersion(name);
-            } else if (websqlDBCache[name][version]) {
-                latestCachedVersion = version;
-            }
+            latestCachedVersion = getLatestCachedWebSQLVersion(name);
         }
         if (latestCachedVersion) {
             openDB(latestCachedVersion);
@@ -3206,17 +3209,17 @@ IDBIndex.__createInstance = function (store, indexProperties) {
         me.__deleted = !!indexProperties.__deleted;
         me.__objectStore.__cursors = indexProperties.cursors || [];
         Object.defineProperty(me, '__currentName', {
-            get: function () {
+            get() {
                 return '__pendingName' in me ? me.__pendingName : me.name;
             }
         });
         Object.defineProperty(me, 'name', {
             enumerable: false,
             configurable: false,
-            get: function () {
+            get() {
                 return this.__name;
             },
-            set: function (newName) {
+            set(newName) {
                 const me = this;
                 newName = util.convertToDOMString(newName);
                 const oldName = me.name;
@@ -3667,7 +3670,7 @@ readonlyProperties.forEach(prop => {
     Object.defineProperty(IDBIndex.prototype, prop, {
         enumerable: true,
         configurable: true,
-        get: function () {
+        get() {
             throw new TypeError('Illegal invocation');
         }
     });
@@ -3675,10 +3678,10 @@ readonlyProperties.forEach(prop => {
 Object.defineProperty(IDBIndex.prototype, 'name', {
     enumerable: true,
     configurable: true,
-    get: function () {
+    get() {
         throw new TypeError('Illegal invocation');
     },
-    set: function (val) {
+    set(val) {
         throw new TypeError('Illegal invocation');
     }
 });
@@ -3891,7 +3894,7 @@ readonlyProperties.forEach(prop => {
     Object.defineProperty(IDBKeyRange.prototype, prop, {
         enumerable: true,
         configurable: true,
-        get: function () {
+        get() {
             // We can't do a regular instanceof check as it will create a loop given our hasInstance implementation
             if (!util.isObj(this) || typeof this.__lowerOpen !== 'boolean') {
                 throw new TypeError('Illegal invocation');
@@ -4051,17 +4054,17 @@ IDBObjectStore.__createInstance = function (storeProperties, transaction) {
         }
         me.__oldIndexNames = me.indexNames.clone();
         Object.defineProperty(this, '__currentName', {
-            get: function () {
+            get() {
                 return '__pendingName' in this ? this.__pendingName : this.name;
             }
         });
         Object.defineProperty(this, 'name', {
             enumerable: false,
             configurable: false,
-            get: function () {
+            get() {
                 return this.__name;
             },
-            set: function (name) {
+            set(name) {
                 const me = this;
                 name = util.convertToDOMString(name);
                 const oldName = me.name;
@@ -4801,7 +4804,7 @@ readonlyProperties.forEach(prop => {
     Object.defineProperty(IDBObjectStore.prototype, prop, {
         enumerable: true,
         configurable: true,
-        get: function () {
+        get() {
             throw new TypeError('Illegal invocation');
         }
     });
@@ -4809,10 +4812,10 @@ readonlyProperties.forEach(prop => {
 Object.defineProperty(IDBObjectStore.prototype, 'name', {
     enumerable: true,
     configurable: true,
-    get: function () {
+    get() {
         throw new TypeError('Illegal invocation');
     },
-    set: function (val) {
+    set(val) {
         throw new TypeError('Illegal invocation');
     }
 });
@@ -4869,7 +4872,7 @@ IDBRequest.__super = function IDBRequest() {
         Object.defineProperty(this, prop, {
             enumerable: true,
             configurable: true,
-            get: function () {
+            get() {
                 if (this.__readyState !== 'done') {
                     throw (0, _DOMException.createDOMException)('InvalidStateError', "Can't get " + prop + '; the request is still pending.');
                 }
@@ -4881,10 +4884,10 @@ IDBRequest.__super = function IDBRequest() {
     listeners.forEach(listener => {
         Object.defineProperty(this, listener, {
             configurable: true, // Needed by support.js in W3C IndexedDB tests
-            get: function () {
+            get() {
                 return this['__' + listener];
             },
-            set: function (val) {
+            set(val) {
                 this['__' + listener] = val;
             }
         });
@@ -4916,7 +4919,7 @@ readonlyProperties.forEach(prop => {
     Object.defineProperty(IDBRequest.prototype, prop, {
         enumerable: true,
         configurable: true,
-        get: function () {
+        get() {
             throw new TypeError('Illegal invocation');
         }
     });
@@ -4926,7 +4929,7 @@ doneFlagGetters.forEach(function (prop) {
     Object.defineProperty(IDBRequest.prototype, prop, {
         enumerable: true,
         configurable: true,
-        get: function () {
+        get() {
             throw new TypeError('Illegal invocation');
         }
     });
@@ -4936,10 +4939,10 @@ listeners.forEach(listener => {
     Object.defineProperty(IDBRequest.prototype, listener, {
         enumerable: true,
         configurable: true,
-        get: function () {
+        get() {
             throw new TypeError('Illegal invocation');
         },
-        set: function (val) {
+        set(val) {
             throw new TypeError('Illegal invocation');
         }
     });
@@ -4987,10 +4990,10 @@ IDBOpenDBRequest.__createInstance = function () {
         openListeners.forEach(listener => {
             Object.defineProperty(this, listener, {
                 configurable: true, // Needed by support.js in W3C IndexedDB tests
-                get: function () {
+                get() {
                     return this['__' + listener];
                 },
-                set: function (val) {
+                set(val) {
                     this['__' + listener] = val;
                 }
             });
@@ -5007,10 +5010,10 @@ openListeners.forEach(listener => {
     Object.defineProperty(IDBOpenDBRequest.prototype, listener, {
         enumerable: true,
         configurable: true,
-        get: function () {
+        get() {
             throw new TypeError('Illegal invocation');
         },
-        set: function (val) {
+        set(val) {
             throw new TypeError('Illegal invocation');
         }
     });
@@ -5103,10 +5106,10 @@ IDBTransaction.__createInstance = function (db, storeNames, mode) {
             Object.defineProperty(this, listener, {
                 enumerable: true,
                 configurable: true,
-                get: function () {
+                get() {
                     return this['__' + listener];
                 },
-                set: function (val) {
+                set(val) {
                     this['__' + listener] = val;
                 }
             });
@@ -5594,10 +5597,10 @@ listeners.forEach(listener => {
     Object.defineProperty(IDBTransaction.prototype, listener, {
         enumerable: true,
         configurable: true,
-        get: function () {
+        get() {
             throw new TypeError('Illegal invocation');
         },
-        set: function (val) {
+        set(val) {
             throw new TypeError('Illegal invocation');
         }
     });
@@ -5608,7 +5611,7 @@ readonlyProperties.forEach(prop => {
     Object.defineProperty(IDBTransaction.prototype, prop, {
         enumerable: true,
         configurable: true,
-        get: function () {
+        get() {
             throw new TypeError('Illegal invocation');
         }
     });
@@ -5664,7 +5667,7 @@ readonlyProperties.forEach(prop => {
     Object.defineProperty(IDBVersionChangeEvent.prototype, prop, {
         enumerable: true,
         configurable: true,
-        get: function () {
+        get() {
             if (!(this instanceof IDBVersionChangeEvent)) {
                 throw new TypeError('Illegal invocation');
             }
@@ -5754,10 +5757,10 @@ const signValues = ['negativeInfinity', 'bigNegative', 'smallNegative', 'smallPo
 
 const types = {
     invalid: {
-        encode: function (key) {
+        encode(key) {
             return keyTypeToEncodedChar.invalid + '-';
         },
-        decode: function (key) {
+        decode(key) {
             return undefined;
         }
     },
@@ -5775,7 +5778,7 @@ const types = {
     number: {
         // The encode step checks for six numeric cases and generates 14-digit encoded
         // sign-exponent-mantissa strings.
-        encode: function (key) {
+        encode(key) {
             let key32 = key === Number.MIN_VALUE
             // Mocha test `IDBFactory/cmp-spec.js` exposed problem for some
             //   Node (and Chrome) versions with `Number.MIN_VALUE` being treated
@@ -5833,7 +5836,7 @@ const types = {
         // The decode step must interpret the sign, reflip values encoded as the 32's complements,
         // apply signs to the exponent and mantissa, do the base-32 power operation, and return
         // the original JavaScript number values.
-        decode: function (key) {
+        decode(key) {
             const sign = +key.substr(2, 1);
             let exponent = key.substr(3, 2);
             let mantissa = key.substr(5, 11);
@@ -5871,14 +5874,14 @@ const types = {
     // This effectively doubles the size of every string, but it ensures that when two arrays of strings are compared,
     // the indexes of each string's characters line up with each other.
     string: {
-        encode: function (key, inArray) {
+        encode(key, inArray) {
             if (inArray) {
                 // prepend each character with a dash, and append a space to the end
                 key = key.replace(/(.)/g, '-$1') + ' ';
             }
             return keyTypeToEncodedChar.string + '-' + key;
         },
-        decode: function (key, inArray) {
+        decode(key, inArray) {
             key = key.slice(2);
             if (inArray) {
                 // remove the space at the end, and the dash before each character
@@ -5891,7 +5894,7 @@ const types = {
     // Arrays are encoded as JSON strings.
     // An extra, value is added to each array during encoding to make empty arrays sort correctly.
     array: {
-        encode: function (key) {
+        encode(key) {
             const encoded = [];
             for (let i = 0; i < key.length; i++) {
                 const item = key[i];
@@ -5901,7 +5904,7 @@ const types = {
             encoded.push(keyTypeToEncodedChar.invalid + '-'); // append an extra item, so empty arrays sort correctly
             return keyTypeToEncodedChar.array + '-' + JSON.stringify(encoded);
         },
-        decode: function (key) {
+        decode(key) {
             const decoded = JSON.parse(key.slice(2));
             decoded.pop(); // remove the extra item
             for (let i = 0; i < decoded.length; i++) {
@@ -5915,19 +5918,19 @@ const types = {
 
     // Dates are encoded as ISO 8601 strings, in UTC time zone.
     date: {
-        encode: function (key) {
+        encode(key) {
             return keyTypeToEncodedChar.date + '-' + key.toJSON();
         },
-        decode: function (key) {
+        decode(key) {
             return new Date(key.slice(2));
         }
     },
     binary: { // `ArrayBuffer`/Views on buffers (`TypedArray` or `DataView`)
-        encode: function (key) {
+        encode(key) {
             return keyTypeToEncodedChar.binary + '-' + (key.byteLength ? [...getCopyBytesHeldByBufferSource(key)].map(b => util.padStart(b, 3, '0')) // e.g., '255,005,254,000,001,033'
             : '');
         },
-        decode: function (key) {
+        decode(key) {
             // Set the entries in buffer's [[ArrayBufferData]] to those in `value`
             const k = key.slice(2);
             const arr = k.length ? k.split(',').map(s => parseInt(s, 10)) : [];
@@ -6757,6 +6760,8 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
+var _eventtargeter = require('eventtargeter');
+
 var _IDBVersionChangeEvent = require('./IDBVersionChangeEvent');
 
 var _IDBVersionChangeEvent2 = _interopRequireDefault(_IDBVersionChangeEvent);
@@ -6795,6 +6800,7 @@ var _CFG2 = _interopRequireDefault(_CFG);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+/* globals self */
 function setConfig(prop, val) {
     if (prop && typeof prop === 'object') {
         for (const p in prop) {
@@ -6806,8 +6812,7 @@ function setConfig(prop, val) {
         throw new Error(prop + ' is not a valid configuration property');
     }
     _CFG2.default[prop] = val;
-} /* globals self */
-
+}
 
 function setGlobalVars(idb, initialConfig) {
     if (initialConfig) {
@@ -6827,10 +6832,13 @@ function setGlobalVars(idb, initialConfig) {
             // Setting a read-only property failed, so try re-defining the property
             try {
                 const desc = propDesc || {};
-                if (!('value' in desc)) {
-                    desc.get = function () {
-                        return value;
-                    };
+                if (!('get' in desc)) {
+                    if (!('value' in desc)) {
+                        desc.value = value;
+                    }
+                    if (!('writable' in desc)) {
+                        desc.writable = true;
+                    }
                 }
                 Object.defineProperty(IDB, name, desc);
             } catch (e) {
@@ -6882,7 +6890,18 @@ function setGlobalVars(idb, initialConfig) {
             if (_CFG2.default.win.openDatabase !== undefined) {
                 _IDBFactory.shimIndexedDB.__openDatabase = _CFG2.default.win.openDatabase.bind(_CFG2.default.win); // We cache here in case the function is overwritten later as by the IndexedDB support promises tests
                 // Polyfill ALL of IndexedDB, using WebSQL
-                [['indexedDB', _IDBFactory.shimIndexedDB], ['IDBFactory', shimIDBFactory], ['IDBDatabase', _IDBDatabase2.default], ['IDBObjectStore', _IDBObjectStore2.default], ['IDBIndex', _IDBIndex2.default], ['IDBTransaction', _IDBTransaction2.default], ['IDBCursor', _IDBCursor.IDBCursor], ['IDBCursorWithValue', _IDBCursor.IDBCursorWithValue], ['IDBKeyRange', _IDBKeyRange2.default], ['IDBRequest', _IDBRequest.IDBRequest], ['IDBOpenDBRequest', _IDBRequest.IDBOpenDBRequest], ['IDBVersionChangeEvent', _IDBVersionChangeEvent2.default]].forEach(([prop, obj]) => {
+                shim('indexedDB', _IDBFactory.shimIndexedDB, {
+                    enumerable: true,
+                    configurable: true,
+                    get() {
+                        if (this !== IDB && this != null && !this.shimNS) {
+                            // Latter is hack for test environment
+                            throw new TypeError('Illegal invocation');
+                        }
+                        return _IDBFactory.shimIndexedDB;
+                    }
+                });
+                [['IDBFactory', shimIDBFactory], ['IDBDatabase', _IDBDatabase2.default], ['IDBObjectStore', _IDBObjectStore2.default], ['IDBIndex', _IDBIndex2.default], ['IDBTransaction', _IDBTransaction2.default], ['IDBCursor', _IDBCursor.IDBCursor], ['IDBCursorWithValue', _IDBCursor.IDBCursorWithValue], ['IDBKeyRange', _IDBKeyRange2.default], ['IDBRequest', _IDBRequest.IDBRequest], ['IDBOpenDBRequest', _IDBRequest.IDBOpenDBRequest], ['IDBVersionChangeEvent', _IDBVersionChangeEvent2.default]].forEach(([prop, obj]) => {
                     shim(prop, obj, {
                         enumerable: false,
                         configurable: true
@@ -6901,6 +6920,7 @@ function setGlobalVars(idb, initialConfig) {
                     Object.setPrototypeOf(_IDBVersionChangeEvent2.default, ShimEvent);
                     Object.setPrototypeOf(_DOMException.ShimDOMException, Error);
                     Object.setPrototypeOf(_DOMException.ShimDOMException.prototype, Error.prototype);
+                    (0, _eventtargeter.setPrototypeOfCustomEvent)();
                 }
                 if (IDB.indexedDB && IDB.indexedDB.modules) {
                     if (_CFG2.default.addNonIDBGlobals) {
@@ -6989,7 +7009,7 @@ module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
-},{"./CFG":6,"./DOMException":7,"./IDBCursor":10,"./IDBDatabase":11,"./IDBFactory":12,"./IDBIndex":13,"./IDBKeyRange":14,"./IDBObjectStore":15,"./IDBRequest":16,"./IDBTransaction":17,"./IDBVersionChangeEvent":18}],25:[function(require,module,exports){
+},{"./CFG":6,"./DOMException":7,"./IDBCursor":10,"./IDBDatabase":11,"./IDBFactory":12,"./IDBIndex":13,"./IDBKeyRange":14,"./IDBObjectStore":15,"./IDBRequest":16,"./IDBTransaction":17,"./IDBVersionChangeEvent":18,"eventtargeter":1}],25:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -7001,7 +7021,7 @@ var _CFG = require('./CFG');
 
 var _CFG2 = _interopRequireDefault(_CFG);
 
-var _regex = require('unicode-9.0.0/Binary_Property/Expands_On_NFD/regex');
+var _regex = require('unicode-10.0.0/Binary_Property/Expands_On_NFD/regex');
 
 var _regex2 = _interopRequireDefault(_regex);
 
@@ -7063,7 +7083,10 @@ function escapeDatabaseNameForSQLAndFiles(db) {
     db = 'D' + escapeNameForSQLiteIdentifier(db);
     if (_CFG2.default.escapeNFDForDatabaseNames !== false) {
         // ES6 copying of regex with different flags
-        db = db.replace(new RegExp(_regex2.default, 'g'), function (expandable) {
+        // Todo: Remove `.source` when
+        //   https://github.com/babel/babel/issues/5978 completed (see also
+        //   https://github.com/axemclion/IndexedDBShim/issues/311#issuecomment-316090147 )
+        db = db.replace(new RegExp(_regex2.default.source, 'g'), function (expandable) {
             return '^4' + padStart(expandable.codePointAt().toString(16), 6, '0');
         });
     }
@@ -7079,7 +7102,7 @@ function escapeDatabaseNameForSQLAndFiles(db) {
 }
 
 function unescapeUnmatchedSurrogates(arg) {
-    return arg.replace(/(\^+)3(d[0-9a-f]{3})/g, (_, esc, lowSurr) => esc.length % 2 ? String.fromCharCode(parseInt(lowSurr, 16)) : _).replace(/(\^+)2(d[0-9a-f]{3})/g, (_, esc, highSurr) => esc.length % 2 ? String.fromCharCode(parseInt(highSurr, 16)) : _);
+    return arg.replace(/(\^+)3(d[0-9a-f]{3})/g, (_, esc, lowSurr) => esc.length % 2 ? esc.slice(1) + String.fromCharCode(parseInt(lowSurr, 16)) : _).replace(/(\^+)2(d[0-9a-f]{3})/g, (_, esc, highSurr) => esc.length % 2 ? esc.slice(1) + String.fromCharCode(parseInt(highSurr, 16)) : _);
 }
 
 // Not in use internally but supplied for convenience
@@ -7094,11 +7117,11 @@ function unescapeDatabaseNameForSQLAndFiles(db) {
 
     return unescapeUnmatchedSurrogates(db.slice(2) // D_
     // CFG.databaseCharacterEscapeList
-    .replace(/(\^+)1([0-9a-f]{2})/g, (_, esc, hex) => esc.length % 2 ? String.fromCharCode(parseInt(hex, 16)) : _)
+    .replace(/(\^+)1([0-9a-f]{2})/g, (_, esc, hex) => esc.length % 2 ? esc.slice(1) + String.fromCharCode(parseInt(hex, 16)) : _)
     // CFG.escapeNFDForDatabaseNames
-    .replace(/(\^+)4([0-9a-f]{6})/g, (_, esc, hex) => esc.length % 2 ? String.fromCodePoint(parseInt(hex, 16)) : _))
+    .replace(/(\^+)4([0-9a-f]{6})/g, (_, esc, hex) => esc.length % 2 ? esc.slice(1) + String.fromCodePoint(parseInt(hex, 16)) : _))
     // escapeNameForSQLiteIdentifier (including unescapeUnmatchedSurrogates() above)
-    .replace(/(\^+)([A-Z])/g, (_, esc, upperCase) => esc.length % 2 ? upperCase : _).replace(/(\^+)0/g, (_, esc) => esc.length % 2 ? '\0' : _).replace(/\^\^/g, '^');
+    .replace(/(\^+)([A-Z])/g, (_, esc, upperCase) => esc.length % 2 ? esc.slice(1) + upperCase : _).replace(/(\^+)0/g, (_, esc) => esc.length % 2 ? esc.slice(1) + '\0' : _).replace(/\^\^/g, '^');
 }
 
 function escapeStoreNameForSQL(store) {
@@ -7164,7 +7187,7 @@ function defineReadonlyProperties(obj, props) {
         Object.defineProperty(obj, prop, {
             enumerable: true,
             configurable: true,
-            get: function () {
+            get() {
                 return this['__' + prop];
             }
         });
@@ -7270,6 +7293,6 @@ exports.convertToDOMString = convertToDOMString;
 exports.convertToSequenceDOMString = convertToSequenceDOMString;
 exports.padStart = padStart;
 
-},{"./CFG":6,"unicode-9.0.0/Binary_Property/Expands_On_NFD/regex":5}]},{},[22])(22)
+},{"./CFG":6,"unicode-10.0.0/Binary_Property/Expands_On_NFD/regex":5}]},{},[22])(22)
 });
 //# sourceMappingURL=indexeddbshim-node.js.map

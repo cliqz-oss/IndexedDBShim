@@ -1,5 +1,71 @@
 # IndexedDBShim changes
 
+## 3.6.2
+
+- Fix (Node): Respect the `databaseBasePath` setting for database
+    deletions (#319); test courtesy @mikelehen
+- Fix (Node): Error (and warning) in cleaning up memory database
+    resources (#320); test and fix courtesy @mikelehen
+- Fix/optimization (Node): Don't remove cache after success, but if using
+    cache, ensure getting last version and ensure async before
+    dispatching any version error
+- Refactoring: Avoid redundant `function` on object literals
+- npm: Fix web-platform-tests script
+
+## 3.6.1
+
+- Critical fix (Please upgrade from any previous 3.0.0 version):
+    Ensure unescaping done in SQL responses (and database names) always adds
+    back any literal `^` sequences. This loss could more easily happen for
+    database names (whenever the name had a sequence of 1 or more literal `^`
+    followed by a single `A` to `Z` (or `[\u0000-\u001F\u007F"*/:<>?\\|]`
+    or characters expanding on NFD normalization), but it could also happen
+    in general SQL responses (or database names) where there was a sequence
+    of 1 or more literal `^` followed by an unmatched surrogate (though this
+    should admittedly be unlikely for most users); this unescaping was meant
+    to build back unmatched surrogates (which are allowed in IndexedDB)
+    and the like which were unsafe for the SQLite engine used internally or
+    for the file system used for Node, but we were failing to add back the
+    `^` escape in such cases (which was used as an escape character).
+
+## 3.6.0
+
+- Refactoring/Fix: For default `escapeNFDForDatabaseNames` check, temporarily
+    circumvent current limitations in Babel until
+    <https://github.com/babel/babel/issues/5978> addressed; (see also
+    <https://github.com/axemclion/IndexedDBShim/issues/311#issuecomment-316090147>);
+    fixes #311
+- Linting: Expand ESLint file coverage and apply minor linting fix to test file
+- Testing: Update web-platform-tests and our tests accordingly
+- npm: Update `eventtargeter` to avoid automatic `Object.setPrototypeOf`
+    calls (make conditional on `CFG.fullIDLSupport`); fixes #313
+
+## 3.5.1
+
+- npm: Update `package-lock.json`
+- npm: Resume allowing Node versions 8.93 - 9.0.0
+- Docs: Put message in README about failure of one test as a known
+    issue for the above Node versions
+
+## 3.5.0
+
+- Breaking fix (through npm): Update typeson and typeson-registry
+    (ArrayBuffer, DataView, and typed arrays were not properly
+    preserving entire underlying buffer when only a portion used;
+    were also not restoring when buffers were reused cyclically
+    across an object)
+- npm: Update dev deps
+- Install: Update `yarn.lock`/`package-lock.json`
+- Testing (W3C): Update web-platform-tests
+
+## 3.4.0
+
+- Fix (minor): Return proper `indexedDB` object descriptor
+- npm: Update devDeps
+- npm: Update dep to unicode-10.0.0 (no practical difference)
+- Testing (W3C): Remove need for cheerio in build (use jsdom instead)
+- Testing (W3C): Update `web-platform-tests`
+
 ## Version 3.3.1
 
 - Build: Switch from `devDependencies` to `dependencies` the following which

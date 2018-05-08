@@ -123,10 +123,10 @@ const CFG = {};
         prop = prop[0];
     }
     Object.defineProperty(CFG, prop, {
-        get: function () {
+        get() {
             return map[prop];
         },
-        set: function (val) {
+        set(val) {
             if (validator) {
                 validator(val);
             }
@@ -264,7 +264,7 @@ function createNonNativeDOMExceptionClass() {
     ['name', 'message'].forEach(prop => {
         Object.defineProperty(DummyDOMException.prototype, prop, {
             enumerable: true,
-            get: function () {
+            get() {
                 if (!(this instanceof DOMException || this instanceof DummyDOMException || this instanceof Error)) {
                     throw new TypeError('Illegal invocation');
                 }
@@ -276,7 +276,7 @@ function createNonNativeDOMExceptionClass() {
     Object.defineProperty(DummyDOMException.prototype, 'code', {
         configurable: true,
         enumerable: true,
-        get: function () {
+        get() {
             throw new TypeError('Illegal invocation');
         }
     });
@@ -505,10 +505,10 @@ const signValues = ['negativeInfinity', 'bigNegative', 'smallNegative', 'smallPo
 
 const types = {
     invalid: {
-        encode: function (key) {
+        encode(key) {
             return keyTypeToEncodedChar.invalid + '-';
         },
-        decode: function (key) {
+        decode(key) {
             return undefined;
         }
     },
@@ -526,7 +526,7 @@ const types = {
     number: {
         // The encode step checks for six numeric cases and generates 14-digit encoded
         // sign-exponent-mantissa strings.
-        encode: function (key) {
+        encode(key) {
             let key32 = key === Number.MIN_VALUE
             // Mocha test `IDBFactory/cmp-spec.js` exposed problem for some
             //   Node (and Chrome) versions with `Number.MIN_VALUE` being treated
@@ -584,7 +584,7 @@ const types = {
         // The decode step must interpret the sign, reflip values encoded as the 32's complements,
         // apply signs to the exponent and mantissa, do the base-32 power operation, and return
         // the original JavaScript number values.
-        decode: function (key) {
+        decode(key) {
             const sign = +key.substr(2, 1);
             let exponent = key.substr(3, 2);
             let mantissa = key.substr(5, 11);
@@ -622,14 +622,14 @@ const types = {
     // This effectively doubles the size of every string, but it ensures that when two arrays of strings are compared,
     // the indexes of each string's characters line up with each other.
     string: {
-        encode: function (key, inArray) {
+        encode(key, inArray) {
             if (inArray) {
                 // prepend each character with a dash, and append a space to the end
                 key = key.replace(/(.)/g, '-$1') + ' ';
             }
             return keyTypeToEncodedChar.string + '-' + key;
         },
-        decode: function (key, inArray) {
+        decode(key, inArray) {
             key = key.slice(2);
             if (inArray) {
                 // remove the space at the end, and the dash before each character
@@ -642,7 +642,7 @@ const types = {
     // Arrays are encoded as JSON strings.
     // An extra, value is added to each array during encoding to make empty arrays sort correctly.
     array: {
-        encode: function (key) {
+        encode(key) {
             const encoded = [];
             for (let i = 0; i < key.length; i++) {
                 const item = key[i];
@@ -652,7 +652,7 @@ const types = {
             encoded.push(keyTypeToEncodedChar.invalid + '-'); // append an extra item, so empty arrays sort correctly
             return keyTypeToEncodedChar.array + '-' + JSON.stringify(encoded);
         },
-        decode: function (key) {
+        decode(key) {
             const decoded = JSON.parse(key.slice(2));
             decoded.pop(); // remove the extra item
             for (let i = 0; i < decoded.length; i++) {
@@ -666,19 +666,19 @@ const types = {
 
     // Dates are encoded as ISO 8601 strings, in UTC time zone.
     date: {
-        encode: function (key) {
+        encode(key) {
             return keyTypeToEncodedChar.date + '-' + key.toJSON();
         },
-        decode: function (key) {
+        decode(key) {
             return new Date(key.slice(2));
         }
     },
     binary: { // `ArrayBuffer`/Views on buffers (`TypedArray` or `DataView`)
-        encode: function (key) {
+        encode(key) {
             return keyTypeToEncodedChar.binary + '-' + (key.byteLength ? [...getCopyBytesHeldByBufferSource(key)].map(b => util.padStart(b, 3, '0')) // e.g., '255,005,254,000,001,033'
             : '');
         },
-        decode: function (key) {
+        decode(key) {
             // Set the entries in buffer's [[ArrayBufferData]] to those in `value`
             const k = key.slice(2);
             const arr = k.length ? k.split(',').map(s => parseInt(s, 10)) : [];
@@ -1327,7 +1327,7 @@ var _CFG = require('./CFG');
 
 var _CFG2 = _interopRequireDefault(_CFG);
 
-var _regex = require('unicode-9.0.0/Binary_Property/Expands_On_NFD/regex');
+var _regex = require('unicode-10.0.0/Binary_Property/Expands_On_NFD/regex');
 
 var _regex2 = _interopRequireDefault(_regex);
 
@@ -1389,7 +1389,10 @@ function escapeDatabaseNameForSQLAndFiles(db) {
     db = 'D' + escapeNameForSQLiteIdentifier(db);
     if (_CFG2.default.escapeNFDForDatabaseNames !== false) {
         // ES6 copying of regex with different flags
-        db = db.replace(new RegExp(_regex2.default, 'g'), function (expandable) {
+        // Todo: Remove `.source` when
+        //   https://github.com/babel/babel/issues/5978 completed (see also
+        //   https://github.com/axemclion/IndexedDBShim/issues/311#issuecomment-316090147 )
+        db = db.replace(new RegExp(_regex2.default.source, 'g'), function (expandable) {
             return '^4' + padStart(expandable.codePointAt().toString(16), 6, '0');
         });
     }
@@ -1405,7 +1408,7 @@ function escapeDatabaseNameForSQLAndFiles(db) {
 }
 
 function unescapeUnmatchedSurrogates(arg) {
-    return arg.replace(/(\^+)3(d[0-9a-f]{3})/g, (_, esc, lowSurr) => esc.length % 2 ? String.fromCharCode(parseInt(lowSurr, 16)) : _).replace(/(\^+)2(d[0-9a-f]{3})/g, (_, esc, highSurr) => esc.length % 2 ? String.fromCharCode(parseInt(highSurr, 16)) : _);
+    return arg.replace(/(\^+)3(d[0-9a-f]{3})/g, (_, esc, lowSurr) => esc.length % 2 ? esc.slice(1) + String.fromCharCode(parseInt(lowSurr, 16)) : _).replace(/(\^+)2(d[0-9a-f]{3})/g, (_, esc, highSurr) => esc.length % 2 ? esc.slice(1) + String.fromCharCode(parseInt(highSurr, 16)) : _);
 }
 
 // Not in use internally but supplied for convenience
@@ -1420,11 +1423,11 @@ function unescapeDatabaseNameForSQLAndFiles(db) {
 
     return unescapeUnmatchedSurrogates(db.slice(2) // D_
     // CFG.databaseCharacterEscapeList
-    .replace(/(\^+)1([0-9a-f]{2})/g, (_, esc, hex) => esc.length % 2 ? String.fromCharCode(parseInt(hex, 16)) : _)
+    .replace(/(\^+)1([0-9a-f]{2})/g, (_, esc, hex) => esc.length % 2 ? esc.slice(1) + String.fromCharCode(parseInt(hex, 16)) : _)
     // CFG.escapeNFDForDatabaseNames
-    .replace(/(\^+)4([0-9a-f]{6})/g, (_, esc, hex) => esc.length % 2 ? String.fromCodePoint(parseInt(hex, 16)) : _))
+    .replace(/(\^+)4([0-9a-f]{6})/g, (_, esc, hex) => esc.length % 2 ? esc.slice(1) + String.fromCodePoint(parseInt(hex, 16)) : _))
     // escapeNameForSQLiteIdentifier (including unescapeUnmatchedSurrogates() above)
-    .replace(/(\^+)([A-Z])/g, (_, esc, upperCase) => esc.length % 2 ? upperCase : _).replace(/(\^+)0/g, (_, esc) => esc.length % 2 ? '\0' : _).replace(/\^\^/g, '^');
+    .replace(/(\^+)([A-Z])/g, (_, esc, upperCase) => esc.length % 2 ? esc.slice(1) + upperCase : _).replace(/(\^+)0/g, (_, esc) => esc.length % 2 ? esc.slice(1) + '\0' : _).replace(/\^\^/g, '^');
 }
 
 function escapeStoreNameForSQL(store) {
@@ -1490,7 +1493,7 @@ function defineReadonlyProperties(obj, props) {
         Object.defineProperty(obj, prop, {
             enumerable: true,
             configurable: true,
-            get: function () {
+            get() {
                 return this['__' + prop];
             }
         });
@@ -1596,6 +1599,6 @@ exports.convertToDOMString = convertToDOMString;
 exports.convertToSequenceDOMString = convertToSequenceDOMString;
 exports.padStart = padStart;
 
-},{"./CFG":2,"unicode-9.0.0/Binary_Property/Expands_On_NFD/regex":1}]},{},[4])(4)
+},{"./CFG":2,"unicode-10.0.0/Binary_Property/Expands_On_NFD/regex":1}]},{},[4])(4)
 });
 //# sourceMappingURL=indexeddbshim-Key.js.map

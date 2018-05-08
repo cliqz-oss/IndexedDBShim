@@ -1,5 +1,5 @@
 import CFG from './CFG';
-import expandsOnNFD from 'unicode-9.0.0/Binary_Property/Expands_On_NFD/regex';
+import expandsOnNFD from 'unicode-10.0.0/Binary_Property/Expands_On_NFD/regex';
 
 function escapeUnmatchedSurrogates (arg) {
     // http://stackoverflow.com/a/6701665/271577
@@ -59,7 +59,10 @@ function escapeDatabaseNameForSQLAndFiles (db) {
     db = 'D' + escapeNameForSQLiteIdentifier(db);
     if (CFG.escapeNFDForDatabaseNames !== false) {
         // ES6 copying of regex with different flags
-        db = db.replace(new RegExp(expandsOnNFD, 'g'), function (expandable) {
+        // Todo: Remove `.source` when
+        //   https://github.com/babel/babel/issues/5978 completed (see also
+        //   https://github.com/axemclion/IndexedDBShim/issues/311#issuecomment-316090147 )
+        db = db.replace(new RegExp(expandsOnNFD.source, 'g'), function (expandable) {
             return '^4' + padStart(expandable.codePointAt().toString(16), 6, '0');
         });
     }
@@ -84,8 +87,16 @@ function escapeDatabaseNameForSQLAndFiles (db) {
 
 function unescapeUnmatchedSurrogates (arg) {
     return arg
-        .replace(/(\^+)3(d[0-9a-f]{3})/g, (_, esc, lowSurr) => esc.length % 2 ? String.fromCharCode(parseInt(lowSurr, 16)) : _)
-        .replace(/(\^+)2(d[0-9a-f]{3})/g, (_, esc, highSurr) => esc.length % 2 ? String.fromCharCode(parseInt(highSurr, 16)) : _);
+        .replace(/(\^+)3(d[0-9a-f]{3})/g, (_, esc, lowSurr) =>
+            esc.length % 2
+                ? esc.slice(1) + String.fromCharCode(parseInt(lowSurr, 16))
+                : _
+        )
+        .replace(/(\^+)2(d[0-9a-f]{3})/g, (_, esc, highSurr) =>
+            esc.length % 2
+                ? esc.slice(1) + String.fromCharCode(parseInt(highSurr, 16))
+                : _
+        );
 }
 
 // Not in use internally but supplied for convenience
@@ -100,13 +111,29 @@ function unescapeDatabaseNameForSQLAndFiles (db) {
 
     return unescapeUnmatchedSurrogates(db.slice(2) // D_
         // CFG.databaseCharacterEscapeList
-        .replace(/(\^+)1([0-9a-f]{2})/g, (_, esc, hex) => esc.length % 2 ? String.fromCharCode(parseInt(hex, 16)) : _)
+        .replace(/(\^+)1([0-9a-f]{2})/g, (_, esc, hex) =>
+            esc.length % 2
+                ? esc.slice(1) + String.fromCharCode(parseInt(hex, 16))
+                : _
+        )
         // CFG.escapeNFDForDatabaseNames
-        .replace(/(\^+)4([0-9a-f]{6})/g, (_, esc, hex) => esc.length % 2 ? String.fromCodePoint(parseInt(hex, 16)) : _)
+        .replace(/(\^+)4([0-9a-f]{6})/g, (_, esc, hex) =>
+            esc.length % 2
+                ? esc.slice(1) + String.fromCodePoint(parseInt(hex, 16))
+                : _
+        )
     )
         // escapeNameForSQLiteIdentifier (including unescapeUnmatchedSurrogates() above)
-        .replace(/(\^+)([A-Z])/g, (_, esc, upperCase) => esc.length % 2 ? upperCase : _)
-        .replace(/(\^+)0/g, (_, esc) => esc.length % 2 ? '\0' : _)
+        .replace(/(\^+)([A-Z])/g, (_, esc, upperCase) =>
+            esc.length % 2
+                ? esc.slice(1) + upperCase
+                : _
+        )
+        .replace(/(\^+)0/g, (_, esc) =>
+            esc.length % 2
+                ? esc.slice(1) + '\0'
+                : _
+        )
         .replace(/\^\^/g, '^');
 }
 
@@ -174,7 +201,7 @@ function defineReadonlyProperties (obj, props) {
         Object.defineProperty(obj, prop, {
             enumerable: true,
             configurable: true,
-            get: function () {
+            get () {
                 return this['__' + prop];
             }
         });
