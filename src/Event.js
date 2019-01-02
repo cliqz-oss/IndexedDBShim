@@ -16,6 +16,7 @@ function createEvent (type, debug, evInit) {
 
 // We don't add within polyfill repo as might not always be the desired implementation
 Object.defineProperty(ShimEvent, Symbol.hasInstance, {
+    // eslint-disable-next-line object-shorthand
     value: function (obj) {
         return util.isObj(obj) && 'target' in obj && typeof obj.bubbles === 'boolean';
     }

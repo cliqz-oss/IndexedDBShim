@@ -34,6 +34,7 @@ readonlyProperties.forEach((prop) => {
 });
 
 Object.defineProperty(IDBVersionChangeEvent, Symbol.hasInstance, {
+    // eslint-disable-next-line object-shorthand
     value: function (obj) {
         return util.isObj(obj) && 'oldVersion' in obj && typeof obj.defaultPrevented === 'boolean';
     }

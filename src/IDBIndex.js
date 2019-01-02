@@ -535,6 +535,7 @@ IDBIndex.prototype.__renameIndex = function (store, oldName, newName, colInfoToP
 };
 
 Object.defineProperty(IDBIndex, Symbol.hasInstance, {
+    // eslint-disable-next-line object-shorthand
     value: function (obj) {
         return util.isObj(obj) && typeof obj.openCursor === 'function' && typeof obj.multiEntry === 'boolean';
     }

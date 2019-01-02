@@ -107,8 +107,9 @@ readonlyProperties.forEach((prop) => {
 });
 
 Object.defineProperty(IDBKeyRange, Symbol.hasInstance, {
+    // eslint-disable-next-line object-shorthand
     value: function (obj) {
-      return util.isObj(obj) && 'upper' in obj && typeof obj.lowerOpen === 'boolean';
+        return util.isObj(obj) && 'upper' in obj && typeof obj.lowerOpen === 'boolean';
     }
 });
 
