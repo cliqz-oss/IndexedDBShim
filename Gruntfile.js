@@ -4,6 +4,8 @@
 const mapstraction = require('mapstraction');
 const pkg = require('./package.json');
 
+pkg.name = 'indexeddbshim';
+
 const babelBrowserOptions = {
     sourceMapsAbsolute: true,
     plugins: ['add-module-exports'],
