@@ -1,6 +1,6 @@
 {
   "name": "@cliqz/indexeddbshim",
-  "version": "4.1.0",
+  "version": "4.1.1",
   "author": "Parashuram <code@nparashuram.com>",
   "contributors": [
     "Brett Zamir"
