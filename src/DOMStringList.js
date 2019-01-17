@@ -97,13 +97,13 @@ DOMStringList.prototype = {
     }
 };
 Object.defineProperty(DOMStringList, Symbol.hasInstance, {
-    value (obj) {
+    value: function (obj) {
         return ({}.toString.call(obj) === 'DOMStringListPrototype');
     }
 });
 const DOMStringListAlias = DOMStringList;
 Object.defineProperty(DOMStringList, '__createInstance', {
-    value () {
+    value: function () {
         const DOMStringList = function DOMStringList () {
             this.toString = function () {
                 return '[object DOMStringList]';
