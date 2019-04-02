@@ -1,3 +1,4 @@
+/* eslint-disable object-shorthand */
 let cleanInterface = false;
 
 const testObject = {test: true};
